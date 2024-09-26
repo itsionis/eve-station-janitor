@@ -1,0 +1,15 @@
+{
+  "profiles": {
+    "Eve Station Janitor Dev": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      }
+    },
+    "Eve Station Janitor": {
+      "commandName": "Project",
+      "environmentVariables": {
+      }
+    }
+  }
+}

@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Flurl" />
+		<PackageReference Include="OneOf" />
+		<PackageReference Include="OneOf.SourceGenerator" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\EveStationJanitor.Authentication\EveStationJanitor.Authentication.csproj" />
+	</ItemGroup>
+</Project>

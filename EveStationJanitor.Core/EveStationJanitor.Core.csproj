@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="CsvHelper" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
+		<PackageReference Include="EntityFrameworkCore.Sqlite.NodaTime" />
+		<PackageReference Include="OneOf" />
+		<PackageReference Include="OneOf.SourceGenerator" />
+		<PackageReference Include="SharpZipLib" />
+		<PackageReference Include="Microsoft.Extensions.Http" />
+		<PackageReference Include="EFCore.NamingConventions" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\EveStationJanitor.Authentication\EveStationJanitor.Authentication.csproj" />
+		<ProjectReference Include="..\EveStationJanitor.EveApi\EveStationJanitor.EveApi.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="DataAccess\Migrations\" />
+	</ItemGroup>
+
+</Project>

@@ -1,0 +1,36 @@
+using EveStationJanitor.Authentication;
+using EveStationJanitor.EveApi.Character;
+using EveStationJanitor.EveApi.Character.Objects;
+using EveStationJanitor.EveApi.Clone;
+using EveStationJanitor.EveApi.Clone.Objects;
+using EveStationJanitor.EveApi.Market;
+using EveStationJanitor.EveApi.Market.Objects;
+
+namespace EveStationJanitor.EveApi;
+
+internal class EveEsiRequestFactory(ITokenProvider tokenProvider, IEntityTagProvider entityTagProvider)
+{
+    public EveEsiRequest<ApiCloneImplants> CloneImplantsRequest(int characterId)
+    {
+        var spec = new CloneImplantsEndpointSpec(characterId);
+        return new EveEsiRequest<ApiCloneImplants>(spec, entityTagProvider, tokenProvider);
+    }
+
+    public EveEsiRequest<ApiCharacterSkills> CharacterSkillsRequest(int characterId)
+    {
+        var spec = new CharacterSkillsEndpointSpec(characterId);
+        return new EveEsiRequest<ApiCharacterSkills>(spec, entityTagProvider, tokenProvider);
+    }
+
+    public EveEsiRequest<List<ApiCharacterStanding>> CharacterStandingsRequest(int characterId)
+    {
+        var spec = new CharacterStandingsEndpointSpec(characterId);
+        return new EveEsiRequest<List<ApiCharacterStanding>>(spec, entityTagProvider, tokenProvider);
+    }
+
+    public EveEsiPagedRequest<ApiMarketOrder> MarketOrdersRequest(int regionId, int? itemTypeId, ApiMarketOrderType orderType)
+    {
+        var spec = new MarketOrdersEndpointSpec(regionId, itemTypeId, orderType);
+        return new EveEsiPagedRequest<ApiMarketOrder>(spec, entityTagProvider, tokenProvider);
+    }
+}

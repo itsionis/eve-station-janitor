@@ -1,0 +1,34 @@
+<Project>
+	<PropertyGroup>
+		<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+	</PropertyGroup>
+	<ItemGroup>
+		<PackageVersion Include="CsvHelper" Version="33.0.1" />
+		<PackageVersion Include="EFCore.NamingConventions" Version="8.0.3" />
+		<PackageVersion Include="EntityFrameworkCore.Sqlite.NodaTime" Version="8.0.1" />
+		<PackageVersion Include="Flurl" Version="4.0.0" />
+		<PackageVersion Include="IdentityModel" Version="7.0.0" />
+		<PackageVersion Include="IdentityModel.OidcClient" Version="6.0.0" />
+		<PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.8" />
+		<PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.8" />
+		<PackageVersion Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+		<PackageVersion Include="Microsoft.Extensions.Http" Version="8.0.0" />
+		<PackageVersion Include="Microsoft.Extensions.Options.DataAnnotations" Version="8.0.0" />
+		<PackageVersion Include="Microsoft.IdentityModel.Tokens" Version="8.0.2" />
+		<PackageVersion Include="NodaTime" Version="3.1.12" />
+		<PackageVersion Include="NodaTime.Serialization.SystemTextJson" Version="1.2.0" />
+		<PackageVersion Include="OneOf" Version="3.0.271" />
+		<PackageVersion Include="OneOf.SourceGenerator" Version="3.0.271" />
+		<PackageVersion Include="Serilog" Version="4.0.1" />
+		<PackageVersion Include="Serilog.Extensions.Hosting" Version="8.0.0" />
+		<PackageVersion Include="Serilog.Extensions.Logging" Version="8.0.0" />
+		<PackageVersion Include="Serilog.Settings.Configuration" Version="8.0.2" />
+		<PackageVersion Include="Serilog.Sinks.Console" Version="6.0.0" />
+		<PackageVersion Include="Serilog.Sinks.File" Version="6.0.0" />
+		<PackageVersion Include="SharpZipLib" Version="1.4.2" />
+		<PackageVersion Include="Spectre.Console" Version="0.49.1" />
+		<PackageVersion Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
+		<PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="8.1.0" />
+		<PackageVersion Include="System.Security.Cryptography.ProtectedData" Version="8.0.0" />
+	</ItemGroup>
+</Project>
