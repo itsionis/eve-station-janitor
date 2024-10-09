@@ -17,7 +17,7 @@ public class ItemGroup
 
     public required int CategoryId { get; set; }
 
-    public required ItemCategory Category { get; set; }
+    public ItemCategory Category { get; set; } = null!;
 
     public IReadOnlyCollection<ItemType> ItemTypes => _itemTypes;
 }
