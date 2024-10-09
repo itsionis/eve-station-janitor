@@ -1,9 +1,11 @@
 ﻿using EveStationJanitor.EveApi.Character.Objects;
 using EveStationJanitor.EveApi.Market.Objects;
+using EveStationJanitor.EveApi.Universe.Objects;
 using System.Text.Json.Serialization;
 
 namespace EveStationJanitor.EveApi;
 
+[JsonSerializable(typeof(ApiItemType))]
 [JsonSerializable(typeof(ApiCharacterSkill))]
 [JsonSerializable(typeof(ApiCharacterSkills))]
 [JsonSerializable(typeof(List<ApiCharacterStanding>))]

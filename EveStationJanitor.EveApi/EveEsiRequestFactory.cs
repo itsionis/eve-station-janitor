@@ -5,6 +5,8 @@ using EveStationJanitor.EveApi.Clone;
 using EveStationJanitor.EveApi.Clone.Objects;
 using EveStationJanitor.EveApi.Market;
 using EveStationJanitor.EveApi.Market.Objects;
+using EveStationJanitor.EveApi.Universe;
+using EveStationJanitor.EveApi.Universe.Objects;
 
 namespace EveStationJanitor.EveApi;
 
@@ -32,5 +34,11 @@ internal class EveEsiRequestFactory(ITokenProvider tokenProvider, IEntityTagProv
     {
         var spec = new MarketOrdersEndpointSpec(regionId, itemTypeId, orderType);
         return new EveEsiPagedRequest<ApiMarketOrder>(spec, entityTagProvider, tokenProvider);
+    }
+
+    public EveEsiRequest<ApiItemType> ItemTypeRequest(int itemId)
+    {
+        var spec = new ItemTypeEndpointSpec(itemId);
+        return new EveEsiRequest<ApiItemType>(spec, entityTagProvider, tokenProvider);
     }
 }
