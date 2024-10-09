@@ -26,7 +26,7 @@ public class EveMarketOrdersRepository : IEveMarketOrdersRepository
 
         var apiOrders = await _eveApi.Markets.GetMarketOrders(station.SolarSystem.RegionId, null, ApiMarketOrderType.All);
 
-        if(apiOrders.TryPickT0(out var orders, out var error))
+        if (apiOrders.TryPickT0(out var orders, out var error))
         {
             await SaveMarketOrders(station, orders);
             return new Success();
@@ -109,6 +109,10 @@ public class EveMarketOrdersRepository : IEveMarketOrdersRepository
         }
 
         var isItemGroup = await EnsureItemGroup(item.GroupId);
+        if (!isItemGroup)
+        {
+            return false;
+        }
 
         var newItem = new ItemType
         {
@@ -141,7 +145,11 @@ public class EveMarketOrdersRepository : IEveMarketOrdersRepository
             return false;
         }
 
-        await EnsureItemCategory(itemGroup.CategoryId);
+        var isItemCategory = await EnsureItemCategory(itemGroup.CategoryId);
+        if (!isItemCategory)
+        {
+            return false;
+        }
 
         var newItemGroup = new ItemGroup
         {
