@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
 
@@ -15,13 +14,12 @@ public class ItemType
     public required int Id { get; set; }
     public required string Name { get; set; }
     public required int GroupId { get; set; }
-    public required ItemGroup Group { get; set; }
+    public ItemGroup Group { get; set; } = null!;
     public required float Volume { get; set; }
     public required float Mass { get; set; }
     public int PortionSize { get; set; }
 
     public IReadOnlyList<ItemTypeMaterial> Materials => _materials;
-
 }
 
 public class ItemTypeConfiguration : IEntityTypeConfiguration<ItemType>
