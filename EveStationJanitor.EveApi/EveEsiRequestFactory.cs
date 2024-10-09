@@ -41,4 +41,16 @@ internal class EveEsiRequestFactory(ITokenProvider tokenProvider, IEntityTagProv
         var spec = new ItemTypeEndpointSpec(itemId);
         return new EveEsiRequest<ApiItemType>(spec, entityTagProvider, tokenProvider);
     }
+
+    public EveEsiRequest<ApiItemGroup> ItemGroupRequest(int itemGroupId)
+    {
+        var spec = new ItemGroupEndpointSpec(itemGroupId);
+        return new EveEsiRequest<ApiItemGroup>(spec, entityTagProvider, tokenProvider);
+    }
+
+    internal EveEsiRequest<ApiItemCategory> ItemCategoryRequest(int id)
+    {
+        var spec = new ItemCategoryEndpointSpec(id);
+        return new EveEsiRequest<ApiItemCategory>(spec, entityTagProvider, tokenProvider);
+    }
 }

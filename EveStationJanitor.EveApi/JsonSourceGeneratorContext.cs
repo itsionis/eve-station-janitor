@@ -6,6 +6,8 @@ using System.Text.Json.Serialization;
 namespace EveStationJanitor.EveApi;
 
 [JsonSerializable(typeof(ApiItemType))]
+[JsonSerializable(typeof(ApiItemGroup))]
+[JsonSerializable(typeof(ApiItemCategory))]
 [JsonSerializable(typeof(ApiCharacterSkill))]
 [JsonSerializable(typeof(ApiCharacterSkills))]
 [JsonSerializable(typeof(List<ApiCharacterStanding>))]
