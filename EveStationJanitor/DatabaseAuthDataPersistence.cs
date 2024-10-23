@@ -66,6 +66,8 @@ public class DatabaseAuthDataPersistence(AppDbContext context) : IAuthentication
             character.AllianceId = info.AllianceId;
         }
 
+        await context.SaveChangesAsync();
+
         var encryptedRefreshToken = EncryptRefreshToken(token.RefreshToken);
 
         var authToken = await context.CharacterAuthTokens
