@@ -1,4 +1,4 @@
-﻿namespace EveStationJanitor.EveApi;
+﻿namespace EveStationJanitor.EveApi.Esi;
 
 internal interface IEveEsiEndpointSpec
 {

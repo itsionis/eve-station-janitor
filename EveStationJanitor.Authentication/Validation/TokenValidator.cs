@@ -1,5 +1,4 @@
 ﻿using EveStationJanitor.Authentication.Exceptions;
-using EveStationJanitor.Authentication.Tokens;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using NodaTime.Extensions;
@@ -23,7 +22,7 @@ public class TokenValidator : ITokenValidator
         _securityKeys = new Lazy<IList<SecurityKey>>(FetchSecurityKeys);
     }
 
-    public async Task<AuthorizedToken?> ValidateToken(EveSsoTokens ssoTokens)
+    public async Task<(AuthorizedToken, EveSsoCharacterInfo)?> ValidateToken(EveSsoTokens ssoTokens)
     {
         var securityKeys = _securityKeys.Value;
         var handler = new JwtSecurityTokenHandler();
@@ -69,10 +68,10 @@ public class TokenValidator : ITokenValidator
         return await PopulateAuthorizedToken(ssoTokens, jwtValidatedToken);
     }
 
-    private async Task<AuthorizedToken> PopulateAuthorizedToken(EveSsoTokens tokens, JwtSecurityToken validatedToken)
+    private async Task<(AuthorizedToken, EveSsoCharacterInfo)> PopulateAuthorizedToken(EveSsoTokens tokens, JwtSecurityToken validatedToken)
     {
         var nameClaim = validatedToken.Claims.SingleOrDefault(c => c.Type == "name")?.Value ?? "";
-        var ownerClaim = validatedToken.Claims.SingleOrDefault(c => c.Type == "owner")?.Value;
+        var ownerClaim = validatedToken.Claims.SingleOrDefault(c => c.Type == "owner")?.Value ?? "";
         var expiresOn = validatedToken.ValidTo.ToInstant();
 
         var subjectClaim = validatedToken.Subject;
@@ -95,17 +94,22 @@ public class TokenValidator : ITokenValidator
         var authorizedtoken = new AuthorizedToken
         {
             AccessToken = tokens.AccessToken,
-            CharacterId = characterId,
             ExpiresOn = expiresOn,
             RefreshToken = tokens.RefreshToken,
-            CharacterName = nameClaim,
-            AllianceId = affiliation.alliance_id,
-            CorporationId = affiliation.corporation_id,
-            FactionId = affiliation.faction_id,
             Scopes = returnedScopes.Select(scope => scope.Value).ToHashSet()
         };
 
-        return authorizedtoken;
+        var characterInfo = new EveSsoCharacterInfo
+        {
+            CharacterId = characterId,
+            CharacterName = nameClaim,
+            CharacterOwnerHash = ownerClaim,
+            AllianceId = affiliation.alliance_id,
+            CorporationId = affiliation.corporation_id,
+            FactionId = affiliation.faction_id,
+        };
+
+        return (authorizedtoken, characterInfo);
     }
 
     private sealed record CharacterAffiliations(int? alliance_id, int character_id, int corporation_id, int? faction_id);

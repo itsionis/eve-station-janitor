@@ -1,5 +1,4 @@
-﻿using EveStationJanitor.Authentication.Tokens;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace EveStationJanitor.Authentication;
 

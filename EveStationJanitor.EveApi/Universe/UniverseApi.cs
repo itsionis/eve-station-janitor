@@ -1,4 +1,5 @@
-﻿using EveStationJanitor.EveApi.Universe.Objects;
+﻿using EveStationJanitor.EveApi.Esi;
+using EveStationJanitor.EveApi.Universe.Objects;
 
 namespace EveStationJanitor.EveApi.Universe;
 

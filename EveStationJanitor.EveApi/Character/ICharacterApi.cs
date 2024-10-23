@@ -1,5 +1,5 @@
-﻿using EveStationJanitor.Authentication.Tokens;
-using EveStationJanitor.EveApi.Character.Objects;
+﻿using EveStationJanitor.EveApi.Character.Objects;
+using EveStationJanitor.EveApi.Esi;
 
 namespace EveStationJanitor.EveApi.Character;
 

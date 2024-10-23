@@ -3,6 +3,7 @@ using System;
 using EveStationJanitor.Core.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,12 +11,39 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EveStationJanitor.Core.DataAccess.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241023125354_AddCharacterAndAuthTables")]
+    partial class AddCharacterAndAuthTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.10");
+
+            modelBuilder.Entity("CharacterAuthTokenScope", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("id");
+
+                    b.Property<int>("CharacterAuthTokenId")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("character_auth_token_id");
+
+                    b.Property<string>("Scope")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("scope");
+
+                    b.HasKey("Id")
+                        .HasName("pk_character_auth_token_scopes");
+
+                    b.HasIndex("CharacterAuthTokenId")
+                        .HasDatabaseName("ix_character_auth_token_scopes_character_auth_token_id");
+
+                    b.ToTable("CharacterAuthTokenScopes", (string)null);
+                });
 
             modelBuilder.Entity("EveStationJanitor.Core.DataAccess.Entities.Character", b =>
                 {
@@ -88,31 +116,6 @@ namespace EveStationJanitor.Core.DataAccess.Migrations
                         .HasDatabaseName("ix_character_auth_tokens_character_id");
 
                     b.ToTable("CharacterAuthTokens", (string)null);
-                });
-
-            modelBuilder.Entity("EveStationJanitor.Core.DataAccess.Entities.CharacterAuthTokenScope", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER")
-                        .HasColumnName("id");
-
-                    b.Property<int>("CharacterAuthTokenId")
-                        .HasColumnType("INTEGER")
-                        .HasColumnName("character_auth_token_id");
-
-                    b.Property<string>("Scope")
-                        .IsRequired()
-                        .HasColumnType("TEXT")
-                        .HasColumnName("scope");
-
-                    b.HasKey("Id")
-                        .HasName("pk_character_auth_token_scopes");
-
-                    b.HasIndex("CharacterAuthTokenId")
-                        .HasDatabaseName("ix_character_auth_token_scopes_character_auth_token_id");
-
-                    b.ToTable("CharacterAuthTokenScopes", (string)null);
                 });
 
             modelBuilder.Entity("EveStationJanitor.Core.DataAccess.Entities.EntityTag", b =>
@@ -375,6 +378,18 @@ namespace EveStationJanitor.Core.DataAccess.Migrations
                     b.ToTable("Stations", (string)null);
                 });
 
+            modelBuilder.Entity("CharacterAuthTokenScope", b =>
+                {
+                    b.HasOne("EveStationJanitor.Core.DataAccess.Entities.CharacterAuthToken", "CharacterAuthToken")
+                        .WithMany("Scopes")
+                        .HasForeignKey("CharacterAuthTokenId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_character_auth_token_scopes_character_auth_tokens_character_auth_token_id");
+
+                    b.Navigation("CharacterAuthToken");
+                });
+
             modelBuilder.Entity("EveStationJanitor.Core.DataAccess.Entities.CharacterAuthToken", b =>
                 {
                     b.HasOne("EveStationJanitor.Core.DataAccess.Entities.Character", "Character")
@@ -385,18 +400,6 @@ namespace EveStationJanitor.Core.DataAccess.Migrations
                         .HasConstraintName("fk_character_auth_tokens_characters_character_id");
 
                     b.Navigation("Character");
-                });
-
-            modelBuilder.Entity("EveStationJanitor.Core.DataAccess.Entities.CharacterAuthTokenScope", b =>
-                {
-                    b.HasOne("EveStationJanitor.Core.DataAccess.Entities.CharacterAuthToken", "CharacterAuthToken")
-                        .WithMany("Scopes")
-                        .HasForeignKey("CharacterAuthTokenId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_character_auth_token_scopes_character_auth_tokens_character_auth_token_id");
-
-                    b.Navigation("CharacterAuthToken");
                 });
 
             modelBuilder.Entity("EveStationJanitor.Core.DataAccess.Entities.ItemGroup", b =>

@@ -4,27 +4,27 @@ using NodaTime.Text;
 using NodaTime;
 using OneOf;
 using OneOf.Types;
-using EveStationJanitor.EveApi;
 using EveStationJanitor.EveApi.Market.Objects;
+using EveStationJanitor.EveApi;
 
 namespace EveStationJanitor.Core;
 
 public class EveMarketOrdersRepository : IEveMarketOrdersRepository
 {
     private readonly AppDbContext _context;
-    private readonly IEveApi _eveApi;
+    private readonly IPublicEveApi _eveApiProvider;
 
-    public EveMarketOrdersRepository(AppDbContext context, IEveApi eveApi)
+    public EveMarketOrdersRepository(AppDbContext context, IPublicEveApi eveApiProvider)
     {
         _context = context;
-        _eveApi = eveApi;
+        _eveApiProvider = eveApiProvider;
     }
 
     public async Task<OneOf<Success, Error>> LoadOrders(Station station)
     {
         Console.WriteLine($"Loading market orders in {station.SolarSystem.Region.Name}...");
 
-        var apiOrders = await _eveApi.Markets.GetMarketOrders(station.SolarSystem.RegionId, null, ApiMarketOrderType.All);
+        var apiOrders = await _eveApiProvider.Markets.GetMarketOrders(station.SolarSystem.RegionId, null, ApiMarketOrderType.All);
 
         if (apiOrders.TryPickT0(out var orders, out var error))
         {
@@ -101,7 +101,7 @@ public class EveMarketOrdersRepository : IEveMarketOrdersRepository
             return true;
         }
 
-        var apiItem = await _eveApi.Universe.GetItemType(itemId);
+        var apiItem = await _eveApiProvider.Universe.GetItemType(itemId);
         if (!apiItem.TryPickT0(out var item, out var error))
         {
             Console.WriteLine($"Attempted to retrieve missing item {itemId}, but ESI did not return a result.");
@@ -138,7 +138,7 @@ public class EveMarketOrdersRepository : IEveMarketOrdersRepository
             return true;
         }
 
-        var apiItemGroup = await _eveApi.Universe.GetItemGroup(id);
+        var apiItemGroup = await _eveApiProvider.Universe.GetItemGroup(id);
         if (!apiItemGroup.TryPickT0(out var itemGroup, out var error))
         {
             Console.WriteLine($"Tried to get missing item group with ID {id} but ESI did not return a result");
@@ -172,7 +172,7 @@ public class EveMarketOrdersRepository : IEveMarketOrdersRepository
             return true;
         }
 
-        var apiItemCategory = await _eveApi.Universe.GetItemCategory(id);
+        var apiItemCategory = await _eveApiProvider.Universe.GetItemCategory(id);
         if (!apiItemCategory.TryPickT0(out var itemCategory, out var error))
         {
             Console.WriteLine($"Tried to get missing item categoory with ID {id} but ESI did not return a result");

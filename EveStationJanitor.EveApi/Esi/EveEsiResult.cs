@@ -1,7 +1,7 @@
 ﻿using OneOf;
 using OneOf.Types;
 
-namespace EveStationJanitor.EveApi;
+namespace EveStationJanitor.EveApi.Esi;
 
 [GenerateOneOf]
 public partial class EveEsiResult<T> : OneOfBase<T, Error<string>, NotModified>

@@ -1,5 +1,4 @@
 ﻿using EveStationJanitor.Authentication.Exceptions;
-using EveStationJanitor.Authentication.Tokens;
 using EveStationJanitor.Authentication.Validation;
 using Flurl;
 using Microsoft.Extensions.DependencyInjection;
@@ -45,16 +44,16 @@ internal sealed class AuthenticationClient : IAuthenticationClient
         _state = Guid.NewGuid().ToString();
     }
 
-    public async Task<AuthorizedToken?> Authenticate()
+    public async Task<(AuthorizedToken, EveSsoCharacterInfo)?> Authenticate()
     {
         return await StartAuthCallbackListener(
             HandleAuthCallback,
             HandleAuthorizationCode);
     }
 
-    private async Task<AuthorizedToken?> StartAuthCallbackListener(
+    private async Task<(AuthorizedToken, EveSsoCharacterInfo)?> StartAuthCallbackListener(
         Func<HttpListenerContext, string?> handleAuthCallback,
-        Func<string, string, Task<AuthorizedToken?>> handleAuthorizationCode)
+        Func<string, string, Task<(AuthorizedToken, EveSsoCharacterInfo)?>> handleAuthorizationCode)
     {
         // URL and code verifier are generated simultaneously because the challenge code is part of the URL query
         // parameters.
@@ -183,7 +182,7 @@ internal sealed class AuthenticationClient : IAuthenticationClient
         }
     }
 
-    public async Task<AuthorizedToken> Refresh(AuthorizedToken token)
+    public async Task<(AuthorizedToken, EveSsoCharacterInfo)?> Refresh(AuthorizedToken token)
     {
         var requestContent = new FormUrlEncodedContent(new Dictionary<string, string>()
         {
@@ -210,7 +209,7 @@ internal sealed class AuthenticationClient : IAuthenticationClient
             }
 
             var validatedTokens = await _tokenValidator.ValidateToken(tokens);
-            return validatedTokens!;
+            return validatedTokens;
         }
         catch (Exception e)
         {
@@ -218,7 +217,7 @@ internal sealed class AuthenticationClient : IAuthenticationClient
         }
     }
 
-    private async Task<AuthorizedToken?> HandleAuthorizationCode(string authorizationCode, string codeVerifier)
+    private async Task<(AuthorizedToken, EveSsoCharacterInfo)?> HandleAuthorizationCode(string authorizationCode, string codeVerifier)
     {
         var token = await ExchangeCodeForTokensAsync(authorizationCode, codeVerifier);
         if (token is null)

@@ -37,11 +37,10 @@ public static class DependencyInjection
 
         services.AddSingleton<IClock>(SystemClock.Instance);
         services.AddSingleton(_ => new TokenPath(tokenFilePath));
-        services.AddSingleton<ITokenPersistence, PersistedTokens>();
         services.AddSingleton<IAuthenticationClient, AuthenticationClient>();
         services.AddSingleton<ITokenValidator, TokenValidator>();
-        services.AddSingleton<ITokenProvider, TokenProvider>();
-
+        services.AddScoped<IBearerTokenProviderFactory, BearerTokenProviderFactory>();
+        
         return services;
     }
 }

@@ -4,16 +4,26 @@ using Microsoft.EntityFrameworkCore;
 using Spectre.Console;
 using EveStationJanitor.Core.DataAccess.Entities;
 using System.Globalization;
+using EveStationJanitor.Authentication;
+using EveStationJanitor.Authentication.Persistence;
 
 namespace EveStationJanitor;
 
 internal sealed class Janitor(
     AppDbContext context,
-    IEveCharacterData eveCharacterData,
-    IEveMarketOrdersRepository marketOrdersRepository)
+    IEveCharacterDataProvider eveCharacterDataProvider,
+    IEveMarketOrdersRepository marketOrdersRepository, 
+    IAuthenticationClient authenticationClient,
+    IAuthenticationDataProvider authenticationDataProvider)
 {
     public async Task Run()
     {
+        var characterId = await PromptUserForCharacter();
+        if (characterId is null)
+        {
+            return;
+        }
+
         var station = PromptUserForTradeHub();
         if (station is null)
         {
@@ -22,21 +32,23 @@ internal sealed class Janitor(
 
         PrintPrettyStationName(station);
 
-        var implantsResult = await eveCharacterData.GetImplants();
+        var characterData = eveCharacterDataProvider.CreateForCharacter(characterId.Value);
+
+        var implantsResult = await characterData.GetImplants();
         if (!implantsResult.TryPickT0(out var _, out var implantError))
         {
             AnsiConsole.Markup($"[red]!! Error fetching implants[/] {implantError.Value}");
             return;
         }
 
-        var skillsResult = await eveCharacterData.GetSkills();
+        var skillsResult = await characterData.GetSkills();
         if (!skillsResult.TryPickT0(out var skills, out var skillsError))
         {
             AnsiConsole.Markup($"[red]!! Error fetching skills[/] {skillsError.Value}");
             return;
         }
 
-        var standingsResult = await eveCharacterData.GetStandings(skills);
+        var standingsResult = await characterData.GetStandings(skills);
         if (!standingsResult.TryPickT0(out var standings, out var standingsError))
         {
             AnsiConsole.Markup($"[red]!! Error fetching standings[/] {standingsError.Value}");
@@ -88,6 +100,12 @@ internal sealed class Janitor(
         }
 
         AnsiConsole.Write(table);
+    }
+
+    private async Task<int?> PromptUserForCharacter()
+    {
+        var prompter = new EveCharacterSelectionLogic(context, authenticationClient, authenticationDataProvider);
+        return await prompter.PromptForCharacterId();
     }
 
     private Station? PromptUserForTradeHub()

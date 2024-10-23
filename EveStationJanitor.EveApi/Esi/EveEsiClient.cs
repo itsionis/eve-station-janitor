@@ -5,7 +5,7 @@ using OneOf.Types;
 using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace EveStationJanitor.EveApi;
+namespace EveStationJanitor.EveApi.Esi;
 
 /// <summary>
 /// A <see cref="HttpClient"/> wrapper which handles the nuances of the Eve Online ESI API.

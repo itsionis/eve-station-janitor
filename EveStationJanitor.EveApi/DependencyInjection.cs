@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using EveStationJanitor.EveApi.Esi;
+using Microsoft.Extensions.DependencyInjection;
 using System.Net.Http.Headers;
 using System.Text.Json;
 
@@ -23,7 +24,8 @@ public static class DependencyInjection
         };
 
         services.AddKeyedSingleton(JsonSourceGeneratorContext.ServiceKey,jsonOptions);
-        services.AddScoped<IEveApi, EveApi>();
+        services.AddScoped<IPublicEveApi, PublicEveApi>();
+        services.AddScoped<IAuthenticatedEveApiProvider, AuthenticatedEveApiProvider>();
         services.AddScoped<EveEsiClient>();
         services.AddScoped<EveEsiRequestFactory>();
         return services;

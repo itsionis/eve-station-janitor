@@ -8,23 +8,23 @@ using EveStationJanitor.EveApi.Market.Objects;
 using EveStationJanitor.EveApi.Universe;
 using EveStationJanitor.EveApi.Universe.Objects;
 
-namespace EveStationJanitor.EveApi;
+namespace EveStationJanitor.EveApi.Esi;
 
-internal class EveEsiRequestFactory(ITokenProvider tokenProvider, IEntityTagProvider entityTagProvider)
+internal class EveEsiRequestFactory(IEntityTagProvider entityTagProvider)
 {
-    public EveEsiRequest<ApiCloneImplants> CloneImplantsRequest(int characterId)
+    public EveEsiRequest<ApiCloneImplants> CloneImplantsRequest(int characterId, IBearerTokenProvider tokenProvider)
     {
         var spec = new CloneImplantsEndpointSpec(characterId);
         return new EveEsiRequest<ApiCloneImplants>(spec, entityTagProvider, tokenProvider);
     }
 
-    public EveEsiRequest<ApiCharacterSkills> CharacterSkillsRequest(int characterId)
+    public EveEsiRequest<ApiCharacterSkills> CharacterSkillsRequest(int characterId, IBearerTokenProvider tokenProvider)
     {
         var spec = new CharacterSkillsEndpointSpec(characterId);
         return new EveEsiRequest<ApiCharacterSkills>(spec, entityTagProvider, tokenProvider);
     }
 
-    public EveEsiRequest<List<ApiCharacterStanding>> CharacterStandingsRequest(int characterId)
+    public EveEsiRequest<List<ApiCharacterStanding>> CharacterStandingsRequest(int characterId, IBearerTokenProvider tokenProvider)
     {
         var spec = new CharacterStandingsEndpointSpec(characterId);
         return new EveEsiRequest<List<ApiCharacterStanding>>(spec, entityTagProvider, tokenProvider);
@@ -33,24 +33,24 @@ internal class EveEsiRequestFactory(ITokenProvider tokenProvider, IEntityTagProv
     public EveEsiPagedRequest<ApiMarketOrder> MarketOrdersRequest(int regionId, int? itemTypeId, ApiMarketOrderType orderType)
     {
         var spec = new MarketOrdersEndpointSpec(regionId, itemTypeId, orderType);
-        return new EveEsiPagedRequest<ApiMarketOrder>(spec, entityTagProvider, tokenProvider);
+        return new EveEsiPagedRequest<ApiMarketOrder>(spec, entityTagProvider);
     }
 
     public EveEsiRequest<ApiItemType> ItemTypeRequest(int itemId)
     {
         var spec = new ItemTypeEndpointSpec(itemId);
-        return new EveEsiRequest<ApiItemType>(spec, entityTagProvider, tokenProvider);
+        return new EveEsiRequest<ApiItemType>(spec, entityTagProvider);
     }
 
     public EveEsiRequest<ApiItemGroup> ItemGroupRequest(int itemGroupId)
     {
         var spec = new ItemGroupEndpointSpec(itemGroupId);
-        return new EveEsiRequest<ApiItemGroup>(spec, entityTagProvider, tokenProvider);
+        return new EveEsiRequest<ApiItemGroup>(spec, entityTagProvider);
     }
 
     internal EveEsiRequest<ApiItemCategory> ItemCategoryRequest(int id)
     {
         var spec = new ItemCategoryEndpointSpec(id);
-        return new EveEsiRequest<ApiItemCategory>(spec, entityTagProvider, tokenProvider);
+        return new EveEsiRequest<ApiItemCategory>(spec, entityTagProvider);
     }
 }

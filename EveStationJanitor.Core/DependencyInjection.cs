@@ -26,8 +26,8 @@ public static class DependencyInjection
         services.AddEveApi();
         services.AddScoped<IEntityTagProvider, EntityTagProvider>();
         services.AddScoped<FuzzworksStaticDataDownloader>();
-        services.AddScoped<IEveCharacterData, EveCharacterData>();
         services.AddScoped<IEveMarketOrdersRepository, EveMarketOrdersRepository>();
+        services.AddScoped<IEveCharacterDataProvider, EveCharacterDataProvider>();
 
         var connectionStringBuilder = new SqliteConnectionStringBuilder
         {

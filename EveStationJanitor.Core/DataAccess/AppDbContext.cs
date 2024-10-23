@@ -1,5 +1,4 @@
-﻿using EveStationJanitor.Authentication;
-using EveStationJanitor.Core.DataAccess.Entities;
+﻿using EveStationJanitor.Core.DataAccess.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace EveStationJanitor.Core.DataAccess;
@@ -15,6 +14,9 @@ public class AppDbContext : DbContext
     public DbSet<EntityTag> EntityTags { get; set; }
     public DbSet<MarketOrder> MarketOrders { get; set; }
     public DbSet<Station> Stations { get; set; }
+    public DbSet<Character> Characters { get; set; }
+    public DbSet<CharacterAuthToken> CharacterAuthTokens { get; set; }
+    public DbSet<CharacterAuthTokenScope> CharacterAuthTokenScopes { get; set; }
 
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {

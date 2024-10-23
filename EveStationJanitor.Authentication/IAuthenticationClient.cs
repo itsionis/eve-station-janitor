@@ -1,11 +1,9 @@
-﻿using EveStationJanitor.Authentication.Tokens;
-
-namespace EveStationJanitor.Authentication;
+﻿namespace EveStationJanitor.Authentication;
 
 public interface IAuthenticationClient
 {
-    public Task<AuthorizedToken?> Authenticate();
-    Task<AuthorizedToken> Refresh(AuthorizedToken token);
+    public Task<(AuthorizedToken, EveSsoCharacterInfo)?> Authenticate();
+    Task<(AuthorizedToken, EveSsoCharacterInfo)?> Refresh(AuthorizedToken token);
 
     public IReadOnlySet<string> Scopes { get; }
 }

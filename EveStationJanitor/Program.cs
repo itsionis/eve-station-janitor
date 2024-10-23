@@ -1,5 +1,6 @@
 ﻿using EveStationJanitor;
 using EveStationJanitor.Authentication;
+using EveStationJanitor.Authentication.Persistence;
 using EveStationJanitor.Core;
 using EveStationJanitor.Core.DataAccess;
 using EveStationJanitor.Core.StaticData;
@@ -30,6 +31,7 @@ builder.Services.AddSerilog();
 builder.Services.AddAuth(tokenPath);
 builder.Services.AddCore(databasePath);
 
+builder.Services.AddScoped<IAuthenticationDataProvider, DatabaseAuthDataPersistence>();
 builder.Services.AddScoped<Janitor>();
 builder.Services.AddScoped<App>();
 

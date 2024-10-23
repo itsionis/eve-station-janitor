@@ -1,8 +1,8 @@
 ﻿using EveStationJanitor.Authentication;
 
-namespace EveStationJanitor.EveApi;
+namespace EveStationJanitor.EveApi.Esi;
 
-internal class EveEsiPagedRequest<TResponse>(IEveEsiEndpointSpec specification, IEntityTagProvider entityTagProvider, ITokenProvider? tokenProvider = null)
+internal class EveEsiPagedRequest<TResponse>(IEveEsiEndpointSpec specification, IEntityTagProvider entityTagProvider, IBearerTokenProvider? tokenProvider = null)
 {
     public EveEsiRequest<TResponse> ForPage(int page = 1)
     {

@@ -1,20 +1,10 @@
-﻿using EveStationJanitor.Authentication;
-using EveStationJanitor.EveApi;
+﻿using EveStationJanitor.EveApi;
 using OneOf.Types;
 
 namespace EveStationJanitor.Core;
 
-internal class EveCharacterData : IEveCharacterData
+internal class EveCharacterData(IAuthenticatedEveApiProvider eveApiProvider, int characterId) : IEveCharacterData
 {
-    private readonly IEveApi _eveApi;
-    private readonly ITokenProvider _tokenProvider;
-
-    public EveCharacterData(IEveApi esiClient, ITokenProvider tokenProvider)
-    {
-        _eveApi = esiClient;
-        _tokenProvider = tokenProvider;
-    }
-
     public async Task<ImplantsResult> GetImplants()
     {
         return await Task.FromResult(new Success());
@@ -22,14 +12,8 @@ internal class EveCharacterData : IEveCharacterData
 
     public async Task<SkillsResult> GetSkills()
     {
-        var token = await _tokenProvider.GetToken();
-        if (token is null)
-        {
-            return new Error<string>("Could not acquire character information for skills request.");
-        }
-
-        // Try update the skills data
-        var apiSkillsResult = await _eveApi.Character.GetCharacterSkills(token.CharacterId);
+        var characterApi = eveApiProvider.CreateCharacterApi(characterId);
+        var apiSkillsResult = await characterApi.GetCharacterSkills(characterId);
         return apiSkillsResult.Match<SkillsResult>(apiSkills =>
         {
             return new Skills(apiSkills);
@@ -41,13 +25,8 @@ internal class EveCharacterData : IEveCharacterData
 
     public async Task<StandingsResult> GetStandings(Skills skills)
     {
-        var token = await _tokenProvider.GetToken();
-        if (token is null)
-        {
-            return new Error<string>("Could not acquire character information for skills request.");
-        }
-
-        var apiStandingsResult = await _eveApi.Character.GetCharacterStandings(token.CharacterId);
+        var characterApi = eveApiProvider.CreateCharacterApi(characterId);
+        var apiStandingsResult = await characterApi.GetCharacterStandings(characterId);
         return apiStandingsResult.Match<StandingsResult>(apiStandings =>
         {
             var standings = new Standings(skills);

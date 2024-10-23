@@ -2,13 +2,13 @@
 using Flurl;
 using System.Net.Http.Headers;
 
-namespace EveStationJanitor.EveApi;
+namespace EveStationJanitor.EveApi.Esi;
 
 /// <summary>
 /// Handles the creation of <see cref="HttpRequestMessage"/>for the EVE Online API. This class can authenticate requests and apply ETag headers.
 /// </summary>
 /// <typeparam name="TResponse"></typeparam>
-internal class EveEsiRequest<TResponse>(IEveEsiEndpointSpec specification, IEntityTagProvider entityTagProvider, ITokenProvider? tokenProvider = null)
+internal class EveEsiRequest<TResponse>(IEveEsiEndpointSpec specification, IEntityTagProvider entityTagProvider, IBearerTokenProvider? tokenProvider = null)
 {
     private static readonly Uri _uriBase = new("https://esi.evetech.net/latest/", UriKind.Absolute);
     private readonly Dictionary<string, object?> _queryParameters = [];
@@ -28,7 +28,7 @@ internal class EveEsiRequest<TResponse>(IEveEsiEndpointSpec specification, IEnti
                 return message;
             }
 
-            message.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
+            message.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
         }
 
         if (includeEntityTag && entityTagProvider != null)

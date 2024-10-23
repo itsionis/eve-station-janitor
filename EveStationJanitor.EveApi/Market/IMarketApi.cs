@@ -1,5 +1,5 @@
-﻿
-using EveStationJanitor.EveApi.Market.Objects;
+﻿using EveStationJanitor.EveApi.Market.Objects;
+using EveStationJanitor.EveApi.Esi;
 
 namespace EveStationJanitor.EveApi.Market;
 

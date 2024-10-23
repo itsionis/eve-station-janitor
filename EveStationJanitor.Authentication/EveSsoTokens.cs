@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace EveStationJanitor.Authentication.Tokens;
+namespace EveStationJanitor.Authentication;
 
 public class EveSsoTokens
 {
