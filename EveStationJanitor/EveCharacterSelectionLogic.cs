@@ -8,59 +8,14 @@ namespace EveStationJanitor;
 
 internal class EveCharacterSelectionLogic(AppDbContext context, IAuthenticationClient authenticationClient, IAuthenticationDataProvider authenticationDataProvider)
 {
-    private async Task<int?> AddNewCharacter()
-    {
-        // Start the authentication flow
-        var authenticationResult = await authenticationClient.Authenticate();
-        if (authenticationResult is null)
-        {
-            AnsiConsole.MarkupLine("[red]Authentication failed[/]");
-            return null;
-        }
-
-        var (token, characterInfo) = authenticationResult.Value;
-        await authenticationDataProvider.WriteCharacterAuthData(characterInfo.CharacterId, token, characterInfo);
-        return characterInfo.CharacterId;
-    }
-
-    private async Task<int?> RemoveCharacter()
-    {
-        var characterChoices = await context.Characters.Select(c => new ValueChoice(c.Name)).ToListAsync();
-
-        var prompt = new SelectionPrompt<Choice>()
-            .Title("Remove a character:")
-            .AddChoiceGroup(new ValueChoice("Characters"), characterChoices)
-            .AddChoiceGroup(new ValueChoice("Actions"), new List<Choice>
-        {
-            new ActionChoice<int?>(PromptForCharacterId, "Go back"),
-        });
-
-        var choice = AnsiConsole.Prompt(prompt);
-
-        if (choice is ValueChoice valueChoice)
-        {
-            var acharacter = context.Characters.FirstOrDefault(f => f.Name == valueChoice.Value);
-            if (acharacter == null) return await PromptForCharacterId();
-            await authenticationDataProvider.RemoveCharacter(acharacter.EveCharacterId);
-            return await PromptForCharacterId();
-        }
-        else if (choice is ActionChoice<int?> actionChoice)
-        {
-            return await actionChoice.Invoke();
-        }
-        else
-        {
-            return null;
-        }
-    }
-
     public async Task<int?> PromptForCharacterId()
     {
-        var characterChoices = await context.Characters.Select(c => new ValueChoice(c.Name)).Order().ToListAsync();
+        var characterChoices = await LoadCharacterNameChoices(context);
 
         var actionChoices = new List<Choice>
         {
-            new ActionChoice<int?>(AddNewCharacter, "Add New Character"),
+            new ActionChoice<int?>(AddNewCharacter, "Add Character"),
+            new ActionChoice<int?>(()=>Task.FromResult<int?>(null), "Exit"),
         };
 
         var prompt = new SelectionPrompt<Choice>()
@@ -69,7 +24,7 @@ internal class EveCharacterSelectionLogic(AppDbContext context, IAuthenticationC
         if (characterChoices.Count > 0)
         {
             prompt.AddChoiceGroup(new ValueChoice("Characters"), characterChoices);
-            actionChoices.Add(new ActionChoice<int?>(RemoveCharacter, "Remove Character"));
+            actionChoices.Insert(1, new ActionChoice<int?>(RemoveCharacter, "Remove Character"));
         }
 
         prompt.AddChoiceGroup(new ValueChoice("Actions"), actionChoices);
@@ -93,6 +48,66 @@ internal class EveCharacterSelectionLogic(AppDbContext context, IAuthenticationC
         {
             return null;
         }
+    }
+
+    private async Task<int?> AddNewCharacter()
+    {
+        // Start the authentication flow
+        var authenticationResult = await authenticationClient.Authenticate();
+        if (authenticationResult is null)
+        {
+            AnsiConsole.MarkupLine("[red]Authentication failed[/]");
+            return await PromptForCharacterId();
+        }
+
+        var (token, characterInfo) = authenticationResult.Value;
+        await authenticationDataProvider.WriteCharacterAuthData(characterInfo.CharacterId, token, characterInfo);
+        return characterInfo.CharacterId;
+    }
+
+    private async Task<int?> RemoveCharacter()
+    {
+        var characterChoices = await LoadCharacterNameChoices(context);
+
+        var prompt = new SelectionPrompt<Choice>()
+            .Title("Remove a character:")
+            .AddChoiceGroup(new ValueChoice("Characters"), characterChoices)
+            .AddChoiceGroup(new ValueChoice("Actions"), new List<Choice>
+        {
+            new ActionChoice<int?>(PromptForCharacterId, "Go back"),
+        });
+
+        var choice = AnsiConsole.Prompt(prompt);
+
+        if (choice is ValueChoice valueChoice)
+        {
+            var characterToRemove = context.Characters.FirstOrDefault(f => f.Name == valueChoice.Value);
+            if (characterToRemove == null)
+            {
+                return await PromptForCharacterId();
+            }
+
+            await authenticationDataProvider.RemoveCharacter(characterToRemove.EveCharacterId);
+            return await PromptForCharacterId();
+        }
+        else if (choice is ActionChoice<int?> actionChoice)
+        {
+            return await actionChoice.Invoke();
+        }
+        else
+        {
+            return null;
+        }
+    }
+
+    private static async Task<List<ValueChoice>> LoadCharacterNameChoices(AppDbContext context)
+    {
+        var characterNames = await context.Characters
+            .OrderBy(c => c.Name)
+            .Select(c => c.Name)
+            .ToListAsync();
+
+        return characterNames.Select(name => new ValueChoice(name)).ToList();
     }
 
     private class ActionChoice<T>(Func<Task<T>> action, string label) : Choice
