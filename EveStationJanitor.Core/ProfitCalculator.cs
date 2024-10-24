@@ -31,7 +31,7 @@ public class ProfitCalculator
             .ThenInclude(itemGroup => itemGroup.Category)
             .Where(order => order.IsBuyOrder == false) // Sell orders
             .Where(order => order.Station == _stationReprocessing.Station) // In our station
-            .Where(order => order.Price >= 10_000) // Remove out tiny items
+//   .Where(order => order.Price >= 10_000) // Remove out tiny items
             .Where(order => order.ItemType.Materials.Any()) // Can be reprocessed
             .ToListAsync();
 
@@ -150,10 +150,12 @@ public class ProfitCalculator
             materialPrice *= (1 - _salesTransactionTaxPercent);
 
             // The material quantity is the 100% ideal reprocessing yield. This is modified by the yield efficiency at the station
-            var yield = Math.Truncate(material.Quantity * _stationReprocessing.CalculateYieldEfficiency(item));
+
+            // TODO Fix
+            var materialQuantity = _stationReprocessing.CalculateReprocessedMaterialQuantity(material);
 
             // Accumulate the running material total
-            totalMaterialValue += materialPrice * yield;
+            totalMaterialValue += materialPrice * materialQuantity;
         }
 
         // Calculate profit: value of materials - cost of the original item

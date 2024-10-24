@@ -11,7 +11,7 @@ public static class ReprocessingFormula
     public static decimal ScrapMetalYield(decimal stationBaseYield, int scrapMetalProcessingSkill)
     {
         scrapMetalProcessingSkill = Math.Clamp(scrapMetalProcessingSkill, 0, 5);
-        return stationBaseYield * (1 + scrapMetalProcessingSkill * 0.02m);
+        return stationBaseYield * (1 + (scrapMetalProcessingSkill * 0.02m));
     }
 
     /// <summary>

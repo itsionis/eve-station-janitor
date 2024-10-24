@@ -116,7 +116,7 @@ public class OreReprocessing
         }
     }
 
-    public decimal GetOreYield(int typeId)
+    public decimal GetOreBonusYield(int typeId)
     {
         return _oreYields.TryGetValue(typeId, out var yield) ? yield : 0m;
     }
