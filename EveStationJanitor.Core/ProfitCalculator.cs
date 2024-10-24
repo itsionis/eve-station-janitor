@@ -150,7 +150,7 @@ public class ProfitCalculator
             materialPrice *= (1 - _salesTransactionTaxPercent);
 
             // The material quantity is the 100% ideal reprocessing yield. This is modified by the yield efficiency at the station
-            var yield = material.Quantity * _stationReprocessing.CalculateYieldEfficiency(item);
+            var yield = Math.Truncate(material.Quantity * _stationReprocessing.CalculateYieldEfficiency(item));
 
             // Accumulate the running material total
             totalMaterialValue += materialPrice * yield;
