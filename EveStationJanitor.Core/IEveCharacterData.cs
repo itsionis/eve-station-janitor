@@ -9,14 +9,14 @@ public interface IEveCharacterData
 
     public Task<StandingsResult> GetStandings(Skills skills);
 
-    public Task<ImplantsResult> GetImplants();
+    public Task<ImplantsResult> GetActiveCloneImplants();
 }
+
+[GenerateOneOf]
+public partial class ImplantsResult : OneOfBase<CloneImplants, Error<string>>;
 
 [GenerateOneOf]
 public partial class SkillsResult : OneOfBase<Skills, Error<string>>;
 
 [GenerateOneOf]
 public partial class StandingsResult : OneOfBase<Standings, Error<string>>;
-
-[GenerateOneOf]
-public partial class ImplantsResult : OneOfBase<Success, Error<string>>;

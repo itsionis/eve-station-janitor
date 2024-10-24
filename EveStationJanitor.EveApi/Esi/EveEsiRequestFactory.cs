@@ -2,7 +2,6 @@ using EveStationJanitor.Authentication;
 using EveStationJanitor.EveApi.Character;
 using EveStationJanitor.EveApi.Character.Objects;
 using EveStationJanitor.EveApi.Clone;
-using EveStationJanitor.EveApi.Clone.Objects;
 using EveStationJanitor.EveApi.Market;
 using EveStationJanitor.EveApi.Market.Objects;
 using EveStationJanitor.EveApi.Universe;
@@ -12,10 +11,10 @@ namespace EveStationJanitor.EveApi.Esi;
 
 internal class EveEsiRequestFactory(IEntityTagProvider entityTagProvider)
 {
-    public EveEsiRequest<ApiCloneImplants> CloneImplantsRequest(int characterId, IBearerTokenProvider tokenProvider)
+    public EveEsiRequest<List<int>> CloneImplantsRequest(int characterId, IBearerTokenProvider tokenProvider)
     {
         var spec = new CloneImplantsEndpointSpec(characterId);
-        return new EveEsiRequest<ApiCloneImplants>(spec, entityTagProvider, tokenProvider);
+        return new EveEsiRequest<List<int>>(spec, entityTagProvider, tokenProvider);
     }
 
     public EveEsiRequest<ApiCharacterSkills> CharacterSkillsRequest(int characterId, IBearerTokenProvider tokenProvider)

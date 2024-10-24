@@ -1,11 +1,12 @@
-﻿using EveStationJanitor.EveApi;
+﻿using EveStationJanitor.Core.DataAccess;
+using EveStationJanitor.EveApi;
 
 namespace EveStationJanitor.Core;
 
-public class EveCharacterDataProvider(IAuthenticatedEveApiProvider eveApiProvider) : IEveCharacterDataProvider
+public class EveCharacterDataProvider(AppDbContext context, IAuthenticatedEveApiProvider eveApiProvider) : IEveCharacterDataProvider
 {
     public IEveCharacterData CreateForCharacter(int characterId)
     {
-        return new EveCharacterData(eveApiProvider, characterId);
+        return new EveCharacterData(context, eveApiProvider, characterId);
     }
 }

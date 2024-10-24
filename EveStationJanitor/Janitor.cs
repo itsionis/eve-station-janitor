@@ -34,8 +34,8 @@ internal sealed class Janitor(
 
         var characterData = eveCharacterDataProvider.CreateForCharacter(characterId.Value);
 
-        var implantsResult = await characterData.GetImplants();
-        if (!implantsResult.TryPickT0(out var _, out var implantError))
+        var implantsResult = await characterData.GetActiveCloneImplants();
+        if (!implantsResult.TryPickT0(out var implants, out var implantError))
         {
             AnsiConsole.Markup($"[red]!! Error fetching implants[/] {implantError.Value}");
             return;
@@ -60,7 +60,7 @@ internal sealed class Janitor(
 
         // Find the most profitable item
         var oreReprocessing = new OreReprocessing(context, skills);
-        var stationReprocessing = new StationReprocessing(oreReprocessing, station, skills, standings);
+        var stationReprocessing = new StationReprocessing(oreReprocessing, station, skills, standings, implants);
 
         var profitCalculator = new ProfitCalculator(context, stationReprocessing, skills);
         var flips = await profitCalculator.FindMostProfitableOrders();

@@ -12,6 +12,7 @@ namespace EveStationJanitor.EveApi;
 [JsonSerializable(typeof(ApiCharacterSkills))]
 [JsonSerializable(typeof(List<ApiCharacterStanding>))]
 [JsonSerializable(typeof(List<ApiMarketOrder>))]
+[JsonSerializable(typeof(List<int>))]
 [JsonSerializable(typeof(ApiStandingType))]
 internal partial class JsonSourceGeneratorContext : JsonSerializerContext
 {

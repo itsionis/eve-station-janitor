@@ -1,13 +1,24 @@
-﻿using EveStationJanitor.EveApi;
+﻿using EveStationJanitor.Core.DataAccess;
+using EveStationJanitor.EveApi;
 using OneOf.Types;
 
 namespace EveStationJanitor.Core;
 
-internal class EveCharacterData(IAuthenticatedEveApiProvider eveApiProvider, int characterId) : IEveCharacterData
+internal class EveCharacterData(AppDbContext context, IAuthenticatedEveApiProvider eveApiProvider, int characterId) : IEveCharacterData
 {
-    public async Task<ImplantsResult> GetImplants()
+    public async Task<ImplantsResult> GetActiveCloneImplants()
     {
-        return await Task.FromResult(new Success());
+        var cloneApi = eveApiProvider.CreateCloneApi(characterId);
+        var apiImplantsResult = await cloneApi.GetActiveCloneImplants(characterId);
+        return apiImplantsResult.Match<ImplantsResult>(implantIds =>
+        {
+            var implants = new CloneImplants();
+            var implantItems = context.ItemTypes.Where(item => implantIds.Contains(item.Id)).ToList();
+            implants.AddImplants(implantItems);
+            return implants;
+        },
+        error => error,
+        notModified => new Error<string>("Not modified."));
     }
 
     public async Task<SkillsResult> GetSkills()

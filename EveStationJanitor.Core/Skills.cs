@@ -29,7 +29,7 @@ public class Skills
     // Trade
     public int Accounting => GetSkillLevel(16622);
 
-    // Resource Processing
+    // Ore Processing
     public int SimpleOreProcessing => GetSkillLevel(60377);
     public int AbyssalOreProcessing => GetSkillLevel(60381);
     public int CoherentOreProcessing => GetSkillLevel(60378);
@@ -42,6 +42,8 @@ public class Skills
     public int RareMoonOreProcessing => GetSkillLevel(46155);
     public int UbiquitousMoonOreProcessing => GetSkillLevel(46152);
     public int UncommonMoonOreProcessing => GetSkillLevel(46154);
+
+    // Reprocessing
     public int Reprocessing => GetSkillLevel(3385);
     public int ReprocessingEfficiency => GetSkillLevel(3389);
     public int ScrapMetalProcessing => GetSkillLevel(12196);
@@ -51,4 +53,5 @@ public class Skills
     public int Diplomacy => GetSkillLevel(3357);
     public int Connections => GetSkillLevel(3359); 
     public int CriminalConnections => GetSkillLevel(3361); 
+
 }
