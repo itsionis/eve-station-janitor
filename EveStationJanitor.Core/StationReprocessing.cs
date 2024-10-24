@@ -1,4 +1,6 @@
 ﻿using EveStationJanitor.Core.DataAccess.Entities;
+using EveStationJanitor.Core.Eve;
+using EveStationJanitor.Core.Eve.Formula;
 using System.Collections.Frozen;
 
 namespace EveStationJanitor.Core;
@@ -25,7 +27,9 @@ public class StationReprocessing
         _stationBaseYield = (decimal)_station.ReprocessingEfficiency;
         _skills = skills;
         _implantReprocessingEfficiency = CalculateCloneImplantBonusReprocessingEfficiency(implants);
-        StationReprocessingTaxPercent = GetStationReprocessingTax(standings, station);
+
+        var stationOwnerStandings = standings.GetStanding(station.OwnerCorporationId);
+        StationReprocessingTaxPercent = TaxFormula.StationReprocessingEquipmentTax(station.ReprocessingTax, stationOwnerStandings);
     }
 
     private static decimal CalculateCloneImplantBonusReprocessingEfficiency(CloneImplants implants)
@@ -50,14 +54,6 @@ public class StationReprocessing
     public Station Station => _station;
 
     public decimal StationReprocessingTaxPercent { get; }
-
-    private static decimal GetStationReprocessingTax(Standings standings, Station station)
-    {
-        var standing = standings.GetStanding(station.OwnerCorporationId);
-        var scalingFactor = station.ReprocessingTax / 6.67d;
-        var scaledStanding = Math.Clamp(standing, 0d, 6.67d);
-        return (decimal)(scaledStanding * scalingFactor);
-    }
 
     public decimal CalculateYieldEfficiency(ItemType itemBeingReprocessed)
     {

@@ -1,4 +1,5 @@
 ﻿using EveStationJanitor.Core.DataAccess;
+using EveStationJanitor.Core.Eve;
 using EveStationJanitor.EveApi;
 using OneOf.Types;
 

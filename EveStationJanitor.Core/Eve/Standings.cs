@@ -1,4 +1,4 @@
-﻿namespace EveStationJanitor.Core;
+﻿namespace EveStationJanitor.Core.Eve;
 
 public class Standings(Skills skills)
 {
@@ -40,6 +40,6 @@ public class Standings(Skills skills)
 
     private static double CalculateEffectiveStanding(double unmodifiedStanding, int skillLevel, double modifier)
     {
-        return unmodifiedStanding + ((10 - unmodifiedStanding) * (modifier * skillLevel));
+        return unmodifiedStanding + (10 - unmodifiedStanding) * (modifier * skillLevel);
     }
 }

@@ -1,6 +1,6 @@
 ﻿using EveStationJanitor.EveApi.Character.Objects;
 
-namespace EveStationJanitor.Core;
+namespace EveStationJanitor.Core.Eve;
 
 public class Skills
 {
@@ -49,9 +49,9 @@ public class Skills
     public int ScrapMetalProcessing => GetSkillLevel(12196);
 
     // Social
-    public int Social => GetSkillLevel(3355); 
+    public int Social => GetSkillLevel(3355);
     public int Diplomacy => GetSkillLevel(3357);
-    public int Connections => GetSkillLevel(3359); 
-    public int CriminalConnections => GetSkillLevel(3361); 
+    public int Connections => GetSkillLevel(3359);
+    public int CriminalConnections => GetSkillLevel(3361);
 
 }

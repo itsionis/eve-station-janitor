@@ -1,6 +1,6 @@
 ﻿using EveStationJanitor.Core.DataAccess.Entities;
 
-namespace EveStationJanitor.Core;
+namespace EveStationJanitor.Core.Eve;
 
 public class CloneImplants
 {

@@ -1,5 +1,6 @@
 ﻿using EveStationJanitor.Core.DataAccess;
 using EveStationJanitor.Core.DataAccess.Entities;
+using EveStationJanitor.Core.Eve;
 using Microsoft.EntityFrameworkCore;
 
 namespace EveStationJanitor.Core;

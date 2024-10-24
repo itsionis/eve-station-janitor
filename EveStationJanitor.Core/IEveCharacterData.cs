@@ -1,4 +1,5 @@
-﻿using OneOf;
+﻿using EveStationJanitor.Core.Eve;
+using OneOf;
 using OneOf.Types;
 
 namespace EveStationJanitor.Core;
