@@ -72,7 +72,7 @@ public class StationReprocessing
             }
             else
             {
-                var yield = ReprocessingFormula.OreYield(_stationBaseYield, _skills.Reprocessing, _skills.ReprocessingEfficiency, oreReprocessingSkill.Value, _implantReprocessingEfficiency);
+                var yield = ReprocessingFormula.StationOreYield(_stationBaseYield, _skills.Reprocessing, _skills.ReprocessingEfficiency, oreReprocessingSkill.Value, _implantReprocessingEfficiency);
                 return _yieldEfficiencyCache[itemBeingReprocessed.Id] = yield;
             }
         }

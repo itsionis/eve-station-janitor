@@ -1,14 +1,13 @@
 ﻿using EveStationJanitor.Core.DataAccess;
 using EveStationJanitor.Core.DataAccess.Entities;
 using EveStationJanitor.Core.Eve;
+using EveStationJanitor.Core.Eve.Formula;
 using Microsoft.EntityFrameworkCore;
 
 namespace EveStationJanitor.Core;
 
 public class ProfitCalculator
 {
-    private const decimal _baseSalesTaxPercent = 0.045m;
-
     private readonly AppDbContext _context;
     private readonly StationReprocessing _stationReprocessing;
     private readonly decimal _salesTransactionTaxPercent;
@@ -17,7 +16,7 @@ public class ProfitCalculator
     {
         _context = context;
         _stationReprocessing = stationReprocessing;
-        _salesTransactionTaxPercent = _baseSalesTaxPercent * (1 - (0.11m * skills.Accounting));
+        _salesTransactionTaxPercent = TaxFormula.SalesTransactionTax(skills.Accounting);
     }
 
     public async Task<List<ItemFlipAppraisal>> FindMostProfitableOrders()
