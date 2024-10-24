@@ -14,7 +14,7 @@ public class StationReprocessing
     private readonly OreReprocessing _oreReprocessing;
     private readonly Station _station;
     private readonly Skills _skills;
-
+    private readonly decimal _stationBaseYield;
     private readonly decimal _implantReprocessingEfficiency = 0.0m;
     private readonly Dictionary<int, decimal> _yieldEfficiencyCache = [];
 
@@ -22,6 +22,7 @@ public class StationReprocessing
     {
         _oreReprocessing = oreReprocessing;
         _station = station;
+        _stationBaseYield = (decimal)_station.ReprocessingEfficiency;
         _skills = skills;
         _implantReprocessingEfficiency = CalculateCloneImplantBonusReprocessingEfficiency(implants);
         StationReprocessingTaxPercent = GetStationReprocessingTax(standings, station);
@@ -65,37 +66,24 @@ public class StationReprocessing
             return efficiency;
         }
 
-        // Get skill levels from the CharacterSkills class
-
         if (itemBeingReprocessed.Group.Category.Name == "Asteroid")
         {
-            // Calculate asteroid reprocessing yield efficiency
-            var oreReprocessingSkillLevel = _oreReprocessing.GetOreReprocessingSkillLevel(itemBeingReprocessed.Id);
-            if (oreReprocessingSkillLevel is null)
+            var oreReprocessingSkill = _oreReprocessing.GetOreReprocessingSkillLevel(itemBeingReprocessed.Id);
+            if (oreReprocessingSkill is null)
             {
-                return _yieldEfficiencyCache[itemBeingReprocessed.Id] = (decimal)_station.ReprocessingEfficiency;
+                // It's an ore, but there's no appropriate skill for it. Fall back to the base yield... Handle this better in the future?
+                return _yieldEfficiencyCache[itemBeingReprocessed.Id] = _stationBaseYield;
             }
             else
             {
-                var oreReprocessingEfficiency =
-                    (decimal)_station.ReprocessingEfficiency *
-                    (1 + _skills.Reprocessing * 0.03m) *
-                    (1 + _skills.ReprocessingEfficiency * 0.02m) *
-                    (1 + oreReprocessingSkillLevel.Value * 0.02m) *
-                    (1 + _implantReprocessingEfficiency);
-
-                return _yieldEfficiencyCache[itemBeingReprocessed.Id] = oreReprocessingEfficiency;
+                var yield = ReprocessingFormula.OreYield(_stationBaseYield, _skills.Reprocessing, _skills.ReprocessingEfficiency, oreReprocessingSkill.Value, _implantReprocessingEfficiency);
+                return _yieldEfficiencyCache[itemBeingReprocessed.Id] = yield;
             }
         }
         else
         {
-            // Calculate scrapmetal reprocessing yield efficiency
-            var scrapMetalReprocessingEfficiency =
-                (decimal)_station.ReprocessingEfficiency *
-                (1 + _skills.ScrapMetalProcessing * 0.02m) *
-                (1 + _implantReprocessingEfficiency);
-
-            return _yieldEfficiencyCache[itemBeingReprocessed.Id] = scrapMetalReprocessingEfficiency;
+            var yield = ReprocessingFormula.ScrapMetalYield(_stationBaseYield, _skills.ScrapMetalProcessing);
+            return _yieldEfficiencyCache[itemBeingReprocessed.Id] = yield;
         }
     }
 }
