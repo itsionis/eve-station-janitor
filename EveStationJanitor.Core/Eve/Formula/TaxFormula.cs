@@ -28,6 +28,8 @@ public static class TaxFormula
     public static decimal SalesTransactionTax(int accountingSkill)
     {
         const decimal baseTax = 0.045m;
+
+        accountingSkill = Math.Clamp(accountingSkill, 0, 5);
         return baseTax * (1 - (0.11m * accountingSkill));
     }
 }
