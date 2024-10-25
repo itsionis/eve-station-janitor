@@ -32,9 +32,9 @@ public static class ReprocessingFormula
         reprocessingEfficiencySkill = Math.Clamp(reprocessingEfficiencySkill, 0, 5);
 
         return stationBaseYield *
-            (1 + reprocessingSkill * 0.03m) *
-            (1 + reprocessingEfficiencySkill * 0.02m) *
-            (1 + oreReprocessingSkill * 0.02m) *
+            (1 + (reprocessingSkill * 0.03m)) *
+            (1 + (reprocessingEfficiencySkill * 0.02m)) *
+            (1 + (oreReprocessingSkill * 0.02m)) *
             (1 + implantReprocessingBonus);
     }
 }

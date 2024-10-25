@@ -2,7 +2,6 @@
 using EveStationJanitor.Core.Eve;
 using EveStationJanitor.Core.Eve.Formula;
 using System.Collections.Frozen;
-using System.Diagnostics;
 
 namespace EveStationJanitor.Core;
 
@@ -18,7 +17,7 @@ public class StationReprocessing
     private readonly Station _station;
     private readonly Skills _skills;
     private readonly decimal _stationBaseYield;
-    private readonly decimal _implantReprocessingEfficiency = 0.0m;
+    private readonly decimal _implantReprocessingEfficiency;
 
     public StationReprocessing(OreReprocessing oreReprocessing, Station station, Skills skills, Standings standings, CloneImplants implants)
     {
@@ -55,20 +54,21 @@ public class StationReprocessing
 
     public decimal StationReprocessingTaxPercent { get; }
 
-    public decimal CalculateReprocessedMaterialQuantity(ItemTypeMaterial material)
+    public decimal ReprocessedMaterialQuantity(ItemTypeMaterial material)
     {
         var itemBeingReprocessed = material.ItemType;
 
-        if (itemBeingReprocessed.Group.Category.Name == "Asteroid")
+        const int asteroidCategoryId = 25;
+        if (itemBeingReprocessed.Group.Category.Id == asteroidCategoryId)
         {
             var oreReprocessingSkill = _oreReprocessing.GetOreReprocessingSkillLevel(itemBeingReprocessed.Id);
-            var quantityWithBonusYield = material.Quantity * (1 + _oreReprocessing.GetOreBonusYield(itemBeingReprocessed.Id));
-            var yieldPercent = ReprocessingFormula.StationOreYield(_stationBaseYield, _skills.Reprocessing, _skills.ReprocessingEfficiency, oreReprocessingSkill.GetValueOrDefault(0), _implantReprocessingEfficiency);
+            var quantityWithBonusYield = material.Quantity;
+            var yieldPercent = ReprocessingFormula.StationOreYield(_stationBaseYield, _skills.Reprocessing, _skills.ReprocessingEfficiency, oreReprocessingSkill, _implantReprocessingEfficiency);
             return Math.Truncate(quantityWithBonusYield * yieldPercent);
         }
         else
         {
-            var yieldPercent = ReprocessingFormula.ScrapMetalYield(_stationBaseYield, _skills.ScrapMetalProcessing);
+            var yieldPercent = ReprocessingFormula.ScrapMetalYield(_stationBaseYield, _skills.ScrapmetalProcessing);
             return Math.Truncate(material.Quantity * yieldPercent);
         }
     }

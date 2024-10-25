@@ -152,7 +152,7 @@ public class ProfitCalculator
             // The material quantity is the 100% ideal reprocessing yield. This is modified by the yield efficiency at the station
 
             // TODO Fix
-            var materialQuantity = _stationReprocessing.CalculateReprocessedMaterialQuantity(material);
+            var materialQuantity = _stationReprocessing.ReprocessedMaterialQuantity(material);
 
             // Accumulate the running material total
             totalMaterialValue += materialPrice * materialQuantity;
