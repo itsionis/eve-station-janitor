@@ -26,6 +26,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scripts", "Scripts", "{C58A
 		Scripts\remove-migration.ps1 = Scripts\remove-migration.ps1
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EveStationJanitor.Core.Tests", "EveStationJanitor.Core.Tests\EveStationJanitor.Core.Tests.csproj", "{89C513A1-B086-4551-BB6E-9C716E88409E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{5A3D43D0-6C17-4856-9A99-CE75CA4FDE11}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -48,11 +52,18 @@ Global
 		{CCCA9878-B016-47A0-9FCF-61FF23DF11EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CCCA9878-B016-47A0-9FCF-61FF23DF11EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CCCA9878-B016-47A0-9FCF-61FF23DF11EE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{89C513A1-B086-4551-BB6E-9C716E88409E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{89C513A1-B086-4551-BB6E-9C716E88409E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{89C513A1-B086-4551-BB6E-9C716E88409E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{89C513A1-B086-4551-BB6E-9C716E88409E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3983D9A9-E9EB-4CF1-9AA4-85EC5F7D8E70}
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{89C513A1-B086-4551-BB6E-9C716E88409E} = {5A3D43D0-6C17-4856-9A99-CE75CA4FDE11}
 	EndGlobalSection
 EndGlobal
