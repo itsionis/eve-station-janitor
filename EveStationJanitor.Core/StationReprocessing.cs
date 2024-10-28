@@ -54,7 +54,7 @@ public class StationReprocessing
 
     public decimal StationReprocessingTaxPercent { get; }
 
-    public decimal ReprocessedMaterialQuantity(ItemTypeMaterial material)
+    public long ReprocessedMaterialQuantity(ItemTypeMaterial material)
     {
         var itemBeingReprocessed = material.ItemType;
 
@@ -64,12 +64,12 @@ public class StationReprocessing
             var oreReprocessingSkill = _oreReprocessing.GetOreReprocessingSkillLevel(itemBeingReprocessed.Id);
             var quantityWithBonusYield = material.Quantity;
             var yieldPercent = ReprocessingFormula.StationOreYield(_stationBaseYield, _skills.Reprocessing, _skills.ReprocessingEfficiency, oreReprocessingSkill, _implantReprocessingEfficiency);
-            return Math.Truncate(quantityWithBonusYield * yieldPercent);
+            return (long)Math.Truncate(quantityWithBonusYield * yieldPercent);
         }
         else
         {
             var yieldPercent = ReprocessingFormula.ScrapMetalYield(_stationBaseYield, _skills.ScrapmetalProcessing);
-            return Math.Truncate(material.Quantity * yieldPercent);
+            return (long)Math.Truncate(material.Quantity * yieldPercent);
         }
     }
 }

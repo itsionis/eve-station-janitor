@@ -23,6 +23,7 @@ public class ProfitCalculator
     {
         var sellOrders = await _context.MarketOrders
             .AsNoTracking()
+            .AsSplitQuery()
             .Include(order => order.ItemType)
             .ThenInclude(type => type.Materials)
             .ThenInclude(material => material.MaterialType)
@@ -31,23 +32,23 @@ public class ProfitCalculator
             .ThenInclude(itemGroup => itemGroup.Category)
             .Where(order => order.IsBuyOrder == false) // Sell orders
             .Where(order => order.Station == _stationReprocessing.Station) // In our station
-//   .Where(order => order.Price >= 10_000) // Remove out tiny items
             .Where(order => order.ItemType.Materials.Any()) // Can be reprocessed
             .ToListAsync();
 
         var buyOrders = await _context.MarketOrders
             .AsNoTracking()
+            .AsSplitQuery()
             .Where(order => order.IsBuyOrder == true) // Buy orders
             .Where(order => order.Station == _stationReprocessing.Station) // In our station
             .Include(order => order.ItemType)
             .ToListAsync();
 
-        var buyOrder95thPrices = CalculateOrderPercentilePricesPerItem(buyOrders, percentile: 0.95);
+        var market = new SimulatedMarket(buyOrders);
         var flips = new List<ItemFlipAppraisal>();
 
         while (true)
         {
-            var mostProfitable = FindMostProfitableOrder(sellOrders, buyOrder95thPrices);
+            var mostProfitable = FindMostProfitableOrder(market, sellOrders);
             if (mostProfitable is null)
             {
                 return flips;
@@ -61,6 +62,13 @@ public class ProfitCalculator
                 break;
             }
 
+            // Execute the reprocessed item sell orders on the market. This ensures our next most profitable item is
+            // based on available buy orders.
+            foreach (var (reprocessedItemToSell, quantity) in flip.ReprocessedItems)
+            {
+                market.ExecuteSell(reprocessedItemToSell, quantity);
+            }
+            
             sellOrders.Remove(order);
             flips.Add(flip);
         }
@@ -68,39 +76,18 @@ public class ProfitCalculator
         return flips;
     }
 
-    private static Dictionary<int, decimal> CalculateOrderPercentilePricesPerItem(List<MarketOrder> buyOrders, double percentile)
+    public (MarketOrder Order, ItemFlipAppraisal Flip)? FindMostProfitableOrder(SimulatedMarket market, List<MarketOrder> sellOrders)
     {
-        var result = new Dictionary<int, decimal>();
-
-        foreach (var orders in buyOrders.GroupBy(o => o.TypeId))
-        {
-            var count = orders.Count();
-            if (count == 0)
-            {
-                continue;
-            }
-
-            var index = (int)Math.Ceiling(percentile * count) - 1;
-
-            var sortedOrders = orders.OrderBy(order => order.Price).ToList();
-            result[orders.Key] = (decimal)sortedOrders[index].Price;
-        }
-
-        return result;
-    }
-
-    public (MarketOrder Order, ItemFlipAppraisal Flip)? FindMostProfitableOrder(List<MarketOrder> sellOrders, Dictionary<int, decimal> itemPercentileBuyPrices)
-    {
-        var groupedSellOrders = sellOrders
+        var sellOrdersByItemId = sellOrders
             .GroupBy(order => order.TypeId)
             .ToDictionary(
             group => group.Key,
             group => group.OrderBy(order => order.Price).ToList());
 
         (MarketOrder, ItemFlipAppraisal)? best = null;
-        decimal maxProfit = decimal.MinValue;
+        var maxProfit = decimal.MinValue;
 
-        foreach (var orderGroup in groupedSellOrders)
+        foreach (var orderGroup in sellOrdersByItemId)
         {
             foreach (var sellOrder in orderGroup.Value)
             {
@@ -110,9 +97,8 @@ public class ProfitCalculator
                     continue;
                 }
 
-                var appraisal = AppraiseFlip(sellOrder, itemPercentileBuyPrices);
+                var appraisal = AppraiseFlip(market, sellOrder);
 
-                // Update if this sell order has a higher profit than the current best one
                 if (appraisal.GrossProfit > maxProfit)
                 {
                     maxProfit = appraisal.GrossProfit;
@@ -127,39 +113,37 @@ public class ProfitCalculator
             }
         }
 
-        return best;  // Return the most profitable order
+        return best;
     }
 
-    public ItemFlipAppraisal AppraiseFlip(MarketOrder sellOrder, IReadOnlyDictionary<int, decimal> itemPercentileBuyPrices)
+    private ItemFlipAppraisal AppraiseFlip(SimulatedMarket market, MarketOrder sellOrder)
     {
         var item = sellOrder.ItemType;
         var totalMaterialValue = 0m;
+        var reprocessedMaterials = new (int, long)[item.Materials.Count];
 
+        var materialIndex = 0;
         foreach (var material in item.Materials)
         {
-            if (!itemPercentileBuyPrices.TryGetValue(material.MaterialItemTypeId, out var materialPrice))
-            {
-                // Material cannot be sold at station, continue just in case the rest of the materials can produce a profit anyway
-                continue;
-            }
+            // The item material quantity is the 100% ideal reprocessing yield. The actual yield is determined by the
+            // station/structure reprocessing logic.
+            var materialQuantity = _stationReprocessing.ReprocessedMaterialQuantity(material);
+            
+            var materialValue = market.PreviewSell(material.MaterialItemTypeId, materialQuantity);
 
             // Deduct the station's tax (equipment tax)
-            materialPrice *= (1 - _stationReprocessing.StationReprocessingTaxPercent);
+            materialValue *= (1 - _stationReprocessing.StationReprocessingTaxPercent);
 
             // Deduct the sales transaction tax (applies when selling an item back to the market)
-            materialPrice *= (1 - _salesTransactionTaxPercent);
+            materialValue *= (1 - _salesTransactionTaxPercent);
 
-            // The material quantity is the 100% ideal reprocessing yield. This is modified by the yield efficiency at the station
-
-            // TODO Fix
-            var materialQuantity = _stationReprocessing.ReprocessedMaterialQuantity(material);
-
-            // Accumulate the running material total
-            totalMaterialValue += materialPrice * materialQuantity;
+            // Accumulate the material value across all materials reprocessed
+            totalMaterialValue += materialValue;
+            
+            reprocessedMaterials[materialIndex] = (material.MaterialItemTypeId, materialQuantity);
         }
 
-        // Calculate profit: value of materials - cost of the original item
         var costOfGoodsSold = (decimal)(sellOrder.Price * sellOrder.VolumeRemaining);
-        return new ItemFlipAppraisal(item, sellOrder.VolumeRemaining, costOfGoodsSold, totalMaterialValue);
+        return new ItemFlipAppraisal(item, sellOrder.VolumeRemaining, costOfGoodsSold, totalMaterialValue, reprocessedMaterials);
     }
 }
