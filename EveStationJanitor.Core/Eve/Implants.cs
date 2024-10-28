@@ -12,4 +12,8 @@ public class CloneImplants
     {
         _implants.AddRange(implants);
     }
+    public void AddImplant(ItemType implant)
+    {
+        _implants.Add(implant);
+    }
 }
