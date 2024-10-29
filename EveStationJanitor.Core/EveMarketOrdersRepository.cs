@@ -23,11 +23,11 @@ public class EveMarketOrdersRepository : IEveMarketOrdersRepository
     public async Task<OneOf<Success, Error>> LoadOrders(Station station)
     {
         Console.WriteLine($"Loading market orders in {station.SolarSystem.Region.Name}...");
-
         var apiOrders = await _eveApiProvider.Markets.GetMarketOrders(station.SolarSystem.RegionId, null, ApiMarketOrderType.All);
 
         if (apiOrders.TryPickT0(out var orders, out var error))
         {
+            Console.WriteLine("Saving market orders...");
             await SaveMarketOrders(station, orders);
             return new Success();
         }
