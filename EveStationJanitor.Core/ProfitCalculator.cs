@@ -141,6 +141,7 @@ public class ProfitCalculator
             totalMaterialValue += materialValue;
             
             reprocessedMaterials[materialIndex] = (material.MaterialItemTypeId, materialQuantity);
+            materialIndex++;
         }
 
         var costOfGoodsSold = (decimal)(sellOrder.Price * sellOrder.VolumeRemaining);
