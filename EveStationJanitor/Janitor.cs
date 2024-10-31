@@ -12,7 +12,7 @@ namespace EveStationJanitor;
 internal sealed class Janitor(
     AppDbContext context,
     IEveCharacterDataProvider eveCharacterDataProvider,
-    IEveMarketOrdersRepository marketOrdersRepository, 
+    IEveMarketOrdersRepository marketOrdersRepository,
     IAuthenticationClient authenticationClient,
     IAuthenticationDataProvider authenticationDataProvider)
 {
@@ -74,12 +74,13 @@ internal sealed class Janitor(
 
         table.AddColumn("Item");
 
-        table.AddColumn("Group");
-
         table.AddColumn("Quantity");
-        table.Columns[2].RightAligned();
+        table.Columns[1].RightAligned();
 
         table.AddColumn("Cost per");
+        table.Columns[2].RightAligned();
+
+        table.AddColumn("Total cost");
         table.Columns[3].RightAligned();
 
         table.AddColumn("Total profit");
@@ -92,13 +93,13 @@ internal sealed class Janitor(
         {
             table.AddRow(
                 flip.Item.Name,
-                flip.Item.Group.Name,
-                flip.Volume.ToString("N0", CultureInfo.CurrentCulture),
+                flip.QuantityToBuy.ToString("N0", CultureInfo.CurrentCulture),
+                (flip.CostOfGoodsSold / flip.QuantityToBuy).ToString("N0", CultureInfo.CurrentCulture),
                 flip.CostOfGoodsSold.ToString("N0", CultureInfo.CurrentCulture),
-                (flip.GrossProfit * flip.Volume).ToString("N0", CultureInfo.CurrentCulture),
+                flip.GrossProfit.ToString("N0", CultureInfo.CurrentCulture),
                 flip.ProfitMargin.ToString("P2", CultureInfo.CurrentCulture));
         }
-
+        
         AnsiConsole.Write(table);
     }
 
@@ -117,7 +118,8 @@ internal sealed class Janitor(
                 "Amarr VIII (Oris) - Emperor Family Academy",
                 "Rens VI - Moon 8 - Brutor Tribe Treasury",
                 "Dodixie IX - Moon 20 - Federation Navy Assembly Plant",
-                "Hek VIII - Moon 12 - Boundless Creation Factory"]);
+                "Hek VIII - Moon 12 - Boundless Creation Factory"
+            ]);
 
         var tradeHubChoice = AnsiConsole.Prompt(prompt);
 

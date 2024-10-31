@@ -46,7 +46,7 @@ public class ProfitCalculator
         var market = new SimulatedMarket(buyOrders);
         var flips = new List<ItemFlipAppraisal>();
 
-        while (true)
+        while (flips.Count < 250)
         {
             var mostProfitable = FindMostProfitableOrder(market, sellOrders);
             if (mostProfitable is null)
@@ -91,14 +91,16 @@ public class ProfitCalculator
         {
             foreach (var sellOrder in orderGroup.Value)
             {
-                if (sellOrder.VolumeRemaining < sellOrder.ItemType.PortionSize)
+                var flippableUnit = sellOrder.ItemType.PortionSize;
+                var flippableVolume = (sellOrder.VolumeRemaining / flippableUnit) * flippableUnit;
+
+                // TODO - Could combine with other orders to acquire a flippable quantity
+                if (flippableVolume == 0)
                 {
-                    // Can't flip this order!
                     continue;
                 }
 
-                var appraisal = AppraiseFlip(market, sellOrder);
-
+                var appraisal = AppraiseFlip(market, sellOrder.ItemType, sellOrder.Price, flippableVolume);
                 if (appraisal.GrossProfit > maxProfit)
                 {
                     maxProfit = appraisal.GrossProfit;
@@ -116,35 +118,50 @@ public class ProfitCalculator
         return best;
     }
 
-    private ItemFlipAppraisal AppraiseFlip(SimulatedMarket market, MarketOrder sellOrder)
+    private ItemFlipAppraisal AppraiseFlip(SimulatedMarket market, ItemType itemToFlip, double price, int quantity)
     {
-        var item = sellOrder.ItemType;
-        var totalMaterialValue = 0m;
-        var reprocessedMaterials = new (int, long)[item.Materials.Count];
+        return AppraiseFlip(_salesTransactionTaxPercent, _stationReprocessing, market, itemToFlip, price, quantity);
+    }
 
+    public static ItemFlipAppraisal AppraiseFlip(decimal salesTransactionTaxPercent, StationReprocessing reprocessing, SimulatedMarket market, ItemType itemToFlip, double price, int quantity)
+    {
+        var revenue = 0m;
+        
+        // We may be flipping N items, but reprocessing works in "portion sizes". E.g. if you reprocess 1,000 missiles
+        // which have a portion size of 500, then you're only reprocessing 2 times.
+        var portions = itemToFlip.PortionSize == 0 ? 0 : quantity / itemToFlip.PortionSize;
+        if (portions == 0)
+        {
+            return new ItemFlipAppraisal(itemToFlip, 0, 0, 0, []);
+        }
+
+        var reprocessedMaterials = new (int, long)[itemToFlip.Materials.Count];
         var materialIndex = 0;
-        foreach (var material in item.Materials)
+        foreach (var material in itemToFlip.Materials)
         {
             // The item material quantity is the 100% ideal reprocessing yield. The actual yield is determined by the
             // station/structure reprocessing logic.
-            var materialQuantity = _stationReprocessing.ReprocessedMaterialQuantity(material);
+            var reprocessedMaterialsPerPortion = reprocessing.ReprocessedMaterialQuantity(material);
+            var materialQuantity = reprocessedMaterialsPerPortion * portions;
             
-            var materialValue = market.PreviewSell(material.MaterialItemTypeId, materialQuantity);
+            // Simulate selling the reprocessed materials
+            var materialRevenue = market.PreviewSell(material.MaterialItemTypeId, materialQuantity);
 
-            // Deduct the station's tax (equipment tax)
-            materialValue *= (1 - _stationReprocessing.StationReprocessingTaxPercent);
-
-            // Deduct the sales transaction tax (applies when selling an item back to the market)
-            materialValue *= (1 - _salesTransactionTaxPercent);
-
+            {
+                // Deduct the station's tax (equipment tax)
+                materialRevenue *= (1 - reprocessing.StationReprocessingTaxPercent);
+                
+                // Deduct the sales transaction tax (applies when selling an item back to the market)
+                materialRevenue *= (1 - salesTransactionTaxPercent);
+            }
+            
             // Accumulate the material value across all materials reprocessed
-            totalMaterialValue += materialValue;
+            revenue += materialRevenue;
             
-            reprocessedMaterials[materialIndex] = (material.MaterialItemTypeId, materialQuantity);
-            materialIndex++;
+            reprocessedMaterials[materialIndex++] = (material.MaterialItemTypeId, materialQuantity);
         }
 
-        var costOfGoodsSold = (decimal)(sellOrder.Price * sellOrder.VolumeRemaining);
-        return new ItemFlipAppraisal(item, sellOrder.VolumeRemaining, costOfGoodsSold, totalMaterialValue, reprocessedMaterials);
+        var costOfGoodsSold = (decimal)price * quantity;
+        return new ItemFlipAppraisal(itemToFlip, quantity, costOfGoodsSold, revenue, reprocessedMaterials);
     }
 }
