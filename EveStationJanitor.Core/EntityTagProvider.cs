@@ -4,7 +4,7 @@ using EveStationJanitor.EveApi;
 
 namespace EveStationJanitor.Core;
 
-public class EntityTagProvider : IEntityTagProvider
+internal class EntityTagProvider : IEntityTagProvider
 {
     private readonly object _lock = new object();
 

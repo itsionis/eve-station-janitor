@@ -3,7 +3,7 @@ using EveStationJanitor.EveApi;
 
 namespace EveStationJanitor.Core;
 
-public class EveCharacterDataProvider(AppDbContext context, IAuthenticatedEveApiProvider eveApiProvider) : IEveCharacterDataProvider
+internal class EveCharacterDataProvider(AppDbContext context, IAuthenticatedEveApiProvider eveApiProvider) : IEveCharacterDataProvider
 {
     public IEveCharacterData CreateForCharacter(int characterId)
     {

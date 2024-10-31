@@ -7,4 +7,6 @@ namespace EveStationJanitor.Core;
 public interface IEveMarketOrdersRepository
 {
     Task<OneOf<Success, Error>> LoadOrders(Station station);
+    Task<List<MarketOrder>> GetSellOrders(Station station);
+    Task<List<MarketOrder>> GetBuyOrders(Station station);
 }

@@ -30,7 +30,11 @@ public class StationReprocessing
         var stationOwnerStandings = standings.GetStanding(station.OwnerCorporationId);
         StationReprocessingTaxPercent = TaxFormula.StationReprocessingEquipmentTax(station.ReprocessingTax, stationOwnerStandings);
     }
+    
+    public Station Station => _station;
 
+    public decimal StationReprocessingTaxPercent { get; }
+    
     private static decimal CalculateCloneImplantBonusReprocessingEfficiency(CloneImplants implants)
     {
         if (implants.Implants.Count == 0)
@@ -49,10 +53,6 @@ public class StationReprocessing
 
         return 0.0m;
     }
-
-    public Station Station => _station;
-
-    public decimal StationReprocessingTaxPercent { get; }
 
     public long ReprocessedMaterialQuantity(ItemTypeMaterial material)
     {

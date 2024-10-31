@@ -1,47 +1,26 @@
-﻿using EveStationJanitor.Core.DataAccess;
-using EveStationJanitor.Core.DataAccess.Entities;
+﻿using EveStationJanitor.Core.DataAccess.Entities;
 using EveStationJanitor.Core.Eve;
 using EveStationJanitor.Core.Eve.Formula;
-using Microsoft.EntityFrameworkCore;
 
 namespace EveStationJanitor.Core;
 
 public class ProfitCalculator
 {
-    private readonly AppDbContext _context;
+    private readonly IEveMarketOrdersRepository _marketOrdersRepository;
     private readonly StationReprocessing _stationReprocessing;
     private readonly decimal _salesTransactionTaxPercent;
 
-    public ProfitCalculator(AppDbContext context, StationReprocessing stationReprocessing, Skills skills)
+    public ProfitCalculator(IEveMarketOrdersRepository marketOrdersRepository, StationReprocessing stationReprocessing, Skills skills)
     {
-        _context = context;
+        _marketOrdersRepository = marketOrdersRepository;
         _stationReprocessing = stationReprocessing;
         _salesTransactionTaxPercent = TaxFormula.SalesTransactionTax(skills.Accounting);
     }
 
     public async Task<List<ItemFlipAppraisal>> FindMostProfitableOrders()
     {
-        var sellOrders = await _context.MarketOrders
-            .AsNoTracking()
-            .AsSplitQuery()
-            .Include(order => order.ItemType)
-            .ThenInclude(type => type.Materials)
-            .ThenInclude(material => material.MaterialType)
-            .Include(order => order.ItemType)
-            .ThenInclude(itemType => itemType.Group)
-            .ThenInclude(itemGroup => itemGroup.Category)
-            .Where(order => order.IsBuyOrder == false) // Sell orders
-            .Where(order => order.Station == _stationReprocessing.Station) // In our station
-            .Where(order => order.ItemType.Materials.Any()) // Can be reprocessed
-            .ToListAsync();
-
-        var buyOrders = await _context.MarketOrders
-            .AsNoTracking()
-            .AsSplitQuery()
-            .Where(order => order.IsBuyOrder == true) // Buy orders
-            .Where(order => order.Station == _stationReprocessing.Station) // In our station
-            .Include(order => order.ItemType)
-            .ToListAsync();
+        var sellOrders = await _marketOrdersRepository.GetSellOrders(_stationReprocessing.Station);
+        var buyOrders = await _marketOrdersRepository.GetBuyOrders(_stationReprocessing.Station);
 
         var market = new SimulatedMarket(buyOrders);
         var flips = new List<ItemFlipAppraisal>();

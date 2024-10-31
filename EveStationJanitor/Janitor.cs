@@ -58,11 +58,10 @@ internal sealed class Janitor(
         // Load regional market orders
         await marketOrdersRepository.LoadOrders(station);
 
-        // Find the most profitable item
         var oreReprocessing = new OreReprocessing(skills);
         var stationReprocessing = new StationReprocessing(oreReprocessing, station, skills, standings, implants);
 
-        var profitCalculator = new ProfitCalculator(context, stationReprocessing, skills);
+        var profitCalculator = new ProfitCalculator(marketOrdersRepository, stationReprocessing, skills);
         var flips = await profitCalculator.FindMostProfitableOrders();
 
         WriteResultsTable(flips);

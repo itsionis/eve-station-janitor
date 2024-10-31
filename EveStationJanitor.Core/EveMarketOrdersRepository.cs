@@ -6,10 +6,11 @@ using OneOf;
 using OneOf.Types;
 using EveStationJanitor.EveApi.Market.Objects;
 using EveStationJanitor.EveApi;
+using Microsoft.EntityFrameworkCore;
 
 namespace EveStationJanitor.Core;
 
-public class EveMarketOrdersRepository : IEveMarketOrdersRepository
+internal class EveMarketOrdersRepository : IEveMarketOrdersRepository
 {
     private readonly AppDbContext _context;
     private readonly IPublicEveApi _eveApiProvider;
@@ -35,6 +36,34 @@ public class EveMarketOrdersRepository : IEveMarketOrdersRepository
         {
             return new Error();
         }
+    }
+
+    public async Task<List<MarketOrder>> GetSellOrders(Station station)
+    {
+        return await _context.MarketOrders
+            .AsNoTracking()
+            .AsSplitQuery()
+            .Include(order => order.ItemType)
+            .ThenInclude(type => type.Materials)
+            .ThenInclude(material => material.MaterialType)
+            .Include(order => order.ItemType)
+            .ThenInclude(itemType => itemType.Group)
+            .ThenInclude(itemGroup => itemGroup.Category)
+            .Where(order => order.IsBuyOrder == false) // Sell orders
+            .Where(order => order.Station == station) // In our station
+            .Where(order => order.ItemType.Materials.Any()) // Can be reprocessed
+            .ToListAsync();
+    }
+
+    public async Task<List<MarketOrder>> GetBuyOrders(Station station)
+    {
+        return await _context.MarketOrders
+            .AsNoTracking()
+            .AsSplitQuery()
+            .Where(order => order.IsBuyOrder == true) // Buy orders
+            .Where(order => order.Station == station) // In our station
+            .Include(order => order.ItemType)
+            .ToListAsync();
     }
 
     private async Task SaveMarketOrders(Station station, List<ApiMarketOrder> ordersFromApi)
