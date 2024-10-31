@@ -19,8 +19,6 @@
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Extensions.Hosting" />
 		<PackageReference Include="OneOf.SourceGenerator" />
-		<PackageReference Include="Serilog.Extensions.Hosting" />
-		<PackageReference Include="Serilog.Sinks.File" />
 		<PackageReference Include="Spectre.Console" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" PrivateAssets="All">
 		  <TreatAsUsed>true</TreatAsUsed>

@@ -7,8 +7,6 @@ using EveStationJanitor.Core.StaticData;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Serilog;
-using System.Globalization;
 
 var applicationDataDirectoryPath = Path.Combine(
     Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
@@ -16,18 +14,11 @@ var applicationDataDirectoryPath = Path.Combine(
 
 var databasePath = Path.Combine(applicationDataDirectoryPath, "esj.db");
 var tokenPath = Path.Combine(applicationDataDirectoryPath, ".tokens");
-var logPath = Path.Combine(applicationDataDirectoryPath, "esj.txt");
 
 Directory.CreateDirectory(applicationDataDirectoryPath);
 
-Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Information()
-    .WriteTo.File(logPath, rollingInterval: RollingInterval.Month, formatProvider: CultureInfo.InvariantCulture)
-    .CreateLogger();
-
 var builder = Host.CreateApplicationBuilder(args);
 
-builder.Services.AddSerilog();
 builder.Services.AddAuth(tokenPath);
 builder.Services.AddCore(databasePath);
 
