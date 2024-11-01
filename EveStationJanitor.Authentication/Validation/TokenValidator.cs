@@ -77,7 +77,10 @@ public class TokenValidator : ITokenValidator
 
         var subjectClaim = validatedToken.Subject;
         var subjectParts = subjectClaim.Split(':');
-        var _ = int.TryParse(subjectParts.LastOrDefault(), out var characterId);
+        if (!int.TryParse(subjectParts.LastOrDefault(), out var characterId))
+        {
+            throw new ValidateTokenException($"Could not parse character ID [{subjectParts.LastOrDefault()}] as a numeric Eve Online character ID");
+        }
 
         var returnedScopes = validatedToken.Claims.Where(c => c.Type == "scp").ToList();
 
