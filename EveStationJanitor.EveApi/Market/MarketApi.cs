@@ -1,6 +1,5 @@
 ﻿using EveStationJanitor.EveApi.Esi;
 using EveStationJanitor.EveApi.Market.Objects;
-using Flurl;
 using System.Globalization;
 
 namespace EveStationJanitor.EveApi.Market;

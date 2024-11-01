@@ -1,7 +1,6 @@
 ﻿using EveStationJanitor.Core.DataAccess.Entities;
 using EveStationJanitor.Core.Eve;
 using EveStationJanitor.Core.Eve.Formula;
-using System.Collections.Frozen;
 
 namespace EveStationJanitor.Core;
 

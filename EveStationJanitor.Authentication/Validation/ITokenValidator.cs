@@ -1,6 +1,4 @@
-﻿using Microsoft.IdentityModel.Tokens;
-
-namespace EveStationJanitor.Authentication.Validation;
+﻿namespace EveStationJanitor.Authentication.Validation;
 
 public interface ITokenValidator
 {
