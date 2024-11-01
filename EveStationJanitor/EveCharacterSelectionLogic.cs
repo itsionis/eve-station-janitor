@@ -38,11 +38,8 @@ internal class EveCharacterSelectionLogic(AppDbContext context, IAuthenticationC
         else if (choice is ValueChoice valueChoice)
         {
             var characterName = valueChoice.Value;
-            if (characterName is null) return null;
-
             var character = await context.Characters.FirstOrDefaultAsync(c => c.Name == characterName);
-            if (character is null) return null;
-            return character.EveCharacterId;
+            return character?.EveCharacterId;
         }
         else
         {
@@ -137,6 +134,6 @@ internal class EveCharacterSelectionLogic(AppDbContext context, IAuthenticationC
 
     private abstract class Choice
     {
-        public override abstract string ToString();
+        public abstract override string ToString();
     }
 }
