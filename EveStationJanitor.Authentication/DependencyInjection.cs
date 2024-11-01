@@ -36,7 +36,6 @@ public static class DependencyInjection
         services.AddKeyedSingleton(JsonSourceGeneratorContext.ServiceKey, jsonOptions);
 
         services.AddSingleton<IClock>(SystemClock.Instance);
-        services.AddSingleton(_ => new TokenPath(tokenFilePath));
         services.AddSingleton<IAuthenticationClient, AuthenticationClient>();
         services.AddSingleton<ITokenValidator, TokenValidator>();
         services.AddScoped<IBearerTokenProviderFactory, BearerTokenProviderFactory>();
