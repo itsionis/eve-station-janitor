@@ -114,7 +114,7 @@ internal sealed class EveEsiClient
         foreach (var page in pages)
         {
             var pageResult = await GetCollectionPage(baseMessage, page, includeEntityTag: false);
-            pageResult.Switch(success => results.AddRange(success.Results), error => hasError = true, _ => { });
+            pageResult.Switch(success => results.AddRange(success.Results), _ => hasError = true, _ => { });
 
             if (hasError) break;
         }
@@ -136,7 +136,7 @@ internal sealed class EveEsiClient
 
         if (!response.IsSuccessStatusCode && await ShouldRetry(response))
         {
-            return await GetCollectionPage<TResponse>(request, page, includeEntityTag); // Retry
+            return await GetCollectionPage(request, page, includeEntityTag); // Retry
         }
 
         var content = await DeserializeResponseContent<List<TResponse>>(response);
@@ -155,7 +155,7 @@ internal sealed class EveEsiClient
         if (entityTagKey is null)
         {
             return;
-        };
+        }
 
         var responseEntityTag = response.Headers.ETag?.Tag;
         if (responseEntityTag != null)
