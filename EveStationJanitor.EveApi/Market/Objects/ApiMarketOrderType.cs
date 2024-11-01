@@ -5,4 +5,4 @@ public enum ApiMarketOrderType
     All,
     Buy,
     Sell
-};
+}

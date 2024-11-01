@@ -18,7 +18,7 @@ public static class DependencyInjection
             client.DefaultRequestHeaders.UserAgent.Add(commentValue);
         });
 
-        var jsonOptions = new JsonSerializerOptions()
+        var jsonOptions = new JsonSerializerOptions
         {
             TypeInfoResolver = JsonSourceGeneratorContext.Default
         };
