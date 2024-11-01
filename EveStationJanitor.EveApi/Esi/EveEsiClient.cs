@@ -12,11 +12,11 @@ namespace EveStationJanitor.EveApi.Esi;
 /// </summary>
 internal sealed class EveEsiClient
 {
-    private const int _workerCount = 8;
-    private const int _apiErrorCode = 420;
-    private const string _errorLimitRemainHeader = "X-ESI-Error-Limit-Remain";
-    private const string _errorLimitResetHeader = "X-ESI-Error-Limit-Reset";
-    private const string _pagesHeader = "X-Pages";
+    private const int WorkerCount = 8;
+    private const int ApiErrorCode = 420;
+    private const string ErrorLimitRemainHeader = "X-ESI-Error-Limit-Remain";
+    private const string ErrorLimitResetHeader = "X-ESI-Error-Limit-Reset";
+    private const string PagesHeader = "X-Pages";
 
     private readonly HttpClient _client;
     private readonly IEntityTagProvider _entityTagProvider;
@@ -94,7 +94,7 @@ internal sealed class EveEsiClient
     {
         var workers = new List<Task<(List<TResponse> Results, bool HasError)>>();
 
-        var pageChunks = Enumerable.Range(startPage, totalPages - startPage + 1).Chunk(totalPages / _workerCount);
+        var pageChunks = Enumerable.Range(startPage, totalPages - startPage + 1).Chunk(totalPages / WorkerCount);
 
         foreach (var chunk in pageChunks)
         {
@@ -193,7 +193,7 @@ internal sealed class EveEsiClient
 
     private static bool IsErrorLimitReached(HttpResponseMessage response)
     {
-        return (int)response.StatusCode == _apiErrorCode;
+        return (int)response.StatusCode == ApiErrorCode;
     }
 
     private static TimeSpan CalculateRetryWait(int errorsRemaining, int secondsUntilReset)
@@ -203,15 +203,15 @@ internal sealed class EveEsiClient
 
     private static int? GetTotalPages(HttpResponseMessage response)
     {
-        var pagesHeader = response.Headers.GetValues(_pagesHeader).FirstOrDefault();
+        var pagesHeader = response.Headers.GetValues(PagesHeader).FirstOrDefault();
         return int.TryParse(pagesHeader, out var pages) ? pages : null;
     }
 
     private static ErrorLimitInfo GetErrorLimitInfo(HttpResponseMessage response)
     {
         return new ErrorLimitInfo(
-            GetHeaderIntValue(response, _errorLimitRemainHeader),
-            GetHeaderIntValue(response, _errorLimitResetHeader));
+            GetHeaderIntValue(response, ErrorLimitRemainHeader),
+            GetHeaderIntValue(response, ErrorLimitResetHeader));
     }
 
     private static int? GetHeaderIntValue(HttpResponseMessage response, string headerName)
