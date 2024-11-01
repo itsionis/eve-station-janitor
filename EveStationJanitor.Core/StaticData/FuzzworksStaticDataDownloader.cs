@@ -86,7 +86,7 @@ public class FuzzworksStaticDataDownloader
     }
 }
 
-public class MapRegionsCsvMap : ClassMap<MapRegion>
+public sealed class MapRegionsCsvMap : ClassMap<MapRegion>
 {
     public MapRegionsCsvMap()
     {
@@ -95,7 +95,7 @@ public class MapRegionsCsvMap : ClassMap<MapRegion>
     }
 }
 
-public class MapSolarSystemsCsvMap : ClassMap<MapSolarSystem>
+public sealed class MapSolarSystemsCsvMap : ClassMap<MapSolarSystem>
 {
     public MapSolarSystemsCsvMap()
     {
@@ -105,7 +105,7 @@ public class MapSolarSystemsCsvMap : ClassMap<MapSolarSystem>
     }
 }
 
-public class InventoryTypeMaterialCsvMap : ClassMap<ItemTypeMaterial>
+public sealed class InventoryTypeMaterialCsvMap : ClassMap<ItemTypeMaterial>
 {
     public InventoryTypeMaterialCsvMap()
     {
@@ -115,7 +115,7 @@ public class InventoryTypeMaterialCsvMap : ClassMap<ItemTypeMaterial>
     }
 }
 
-public class ItemTypeTypeCsvMap : ClassMap<ItemType>
+public sealed class ItemTypeTypeCsvMap : ClassMap<ItemType>
 {
     public ItemTypeTypeCsvMap()
     {
@@ -128,7 +128,7 @@ public class ItemTypeTypeCsvMap : ClassMap<ItemType>
     }
 }
 
-public class InventoryGroupCsvMap : ClassMap<ItemGroup>
+public sealed class InventoryGroupCsvMap : ClassMap<ItemGroup>
 {
     public InventoryGroupCsvMap()
     {
@@ -138,7 +138,7 @@ public class InventoryGroupCsvMap : ClassMap<ItemGroup>
     }
 }
 
-public class InventoryCategoryCsvMap : ClassMap<ItemCategory>
+public sealed class InventoryCategoryCsvMap : ClassMap<ItemCategory>
 {
     public InventoryCategoryCsvMap()
     {
@@ -147,7 +147,7 @@ public class InventoryCategoryCsvMap : ClassMap<ItemCategory>
     }
 }
 
-public class StationCsvMap : ClassMap<Station>
+public sealed class StationCsvMap : ClassMap<Station>
 {
     public StationCsvMap()
     {
