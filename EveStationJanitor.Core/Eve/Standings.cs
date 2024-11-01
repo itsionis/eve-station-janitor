@@ -40,6 +40,10 @@ public class Standings(Skills skills)
 
     private static double CalculateEffectiveStanding(double unmodifiedStanding, int skillLevel, double modifier)
     {
-        return unmodifiedStanding + (10 - unmodifiedStanding) * (modifier * skillLevel);
+        const int maxStanding = 10;
+        
+        return unmodifiedStanding 
+               + (maxStanding - unmodifiedStanding)
+               * (modifier * skillLevel);
     }
 }
