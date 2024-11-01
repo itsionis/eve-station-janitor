@@ -21,21 +21,25 @@ internal class EveMarketOrdersRepository : IEveMarketOrdersRepository
         _eveApiProvider = eveApiProvider;
     }
 
-    public async Task<OneOf<Success, Error>> LoadOrders(Station station)
+    public async Task<OneOf<Success, Error<string>>> LoadOrders(Station station)
     {
         Console.WriteLine($"Loading market orders in {station.SolarSystem.Region.Name}...");
-        var apiOrders = await _eveApiProvider.Markets.GetMarketOrders(station.SolarSystem.RegionId, null, ApiMarketOrderType.All);
+        var apiOrders = await _eveApiProvider.Markets.GetMarketOrders(station.SolarSystem.RegionId);
 
-        if (apiOrders.TryPickT0(out var orders, out var error))
+        if (apiOrders.TryPickT0(out var orders, out var otherwise))
         {
             Console.WriteLine("Saving market orders...");
             await SaveMarketOrders(station, orders);
             return new Success();
         }
-        else
-        {
-            return new Error();
-        }
+
+        return otherwise.Match<OneOf<Success, Error<string>>>(
+            error => error,
+            notModified =>
+            {
+                // Sales data is not modified, what we have saved is up-to-date. Continue.
+                return new Success();
+            });
     }
 
     public async Task<List<MarketOrder>> GetSellOrders(Station station)
@@ -90,7 +94,7 @@ internal class EveMarketOrdersRepository : IEveMarketOrdersRepository
 
         // Sometimes the SDE is behind live data. Load any missing item, groups and categories to prevent foreign key violations
         await EnsureOrderItemsConsistency(orders);
-
+        
         // Replace all existing
         var ordersToRemove = _context.MarketOrders.Where(order => order.LocationId == station.Id);
         _context.MarketOrders.RemoveRange(ordersToRemove);
@@ -124,7 +128,7 @@ internal class EveMarketOrdersRepository : IEveMarketOrdersRepository
 
     private async Task<bool> EnsureItem(int itemId)
     {
-        var maybeItem = _context.ItemTypes.FirstOrDefault(item => item.Id == itemId);
+        var maybeItem = _context.ItemTypes.FirstOrDefault(itemType => itemType.Id == itemId);
         if (maybeItem is not null)
         {
             return true;
