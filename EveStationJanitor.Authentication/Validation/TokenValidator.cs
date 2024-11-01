@@ -79,8 +79,7 @@ public class TokenValidator : ITokenValidator
         var subjectParts = subjectClaim.Split(':');
         var _ = int.TryParse(subjectParts.LastOrDefault(), out var characterId);
 
-        var returnedScopes = validatedToken.Claims.Where(c => c.Type == "scp");
-        var scopesClaim = string.Join(" ", returnedScopes.Select(s => s.Value));
+        var returnedScopes = validatedToken.Claims.Where(c => c.Type == "scp").ToList();
 
         // Get more details on the character
         var client = _httpClientFactory.CreateClient();
