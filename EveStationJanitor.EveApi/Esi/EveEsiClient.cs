@@ -58,14 +58,12 @@ internal sealed class EveEsiClient
         UpdateEntityTag(response, esiRequest.ETagKey);
 
         var content = await DeserializeResponseContent<TResponse>(response);
-        if (content is not null)
-        {
-            return content;
-        }
-        else
+        if (content is null)
         {
             return new Error<string>("Could not deserialize the response.");
         }
+
+        return content;
     }
 
     public async Task<GetPagedCollectionResult<TResponse>> GetPagedCollection<TResponse>(EveEsiPagedRequest<TResponse> esiRequest)
