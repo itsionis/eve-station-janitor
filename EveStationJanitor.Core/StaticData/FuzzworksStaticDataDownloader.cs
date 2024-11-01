@@ -55,7 +55,7 @@ public class FuzzworksStaticDataDownloader
             _entityTagProvider.SetEntityTag(fileName, responseEntityTag);
         }
 
-        var inStream = response.Content.ReadAsStream();
+        var inStream = await response.Content.ReadAsStreamAsync();
         var outStream = File.OpenWrite(dataFileName);
         BZip2.Decompress(inStream, outStream, true);
 
@@ -66,7 +66,7 @@ public class FuzzworksStaticDataDownloader
         var records = csvReader.GetRecords<TEntity>().ToList();
 
         _context.Set<TEntity>().AddRange(records);
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
     }
 
     public async Task Run()
