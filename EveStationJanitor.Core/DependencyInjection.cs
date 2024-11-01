@@ -44,7 +44,7 @@ public static class DependencyInjection
             });
 
 #if DEBUG
-            o.EnableSensitiveDataLogging(true);
+            o.EnableSensitiveDataLogging();
 #endif
         });
 
