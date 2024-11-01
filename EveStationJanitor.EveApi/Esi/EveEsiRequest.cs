@@ -31,7 +31,7 @@ internal class EveEsiRequest<TResponse>(IEveEsiEndpointSpec specification, IEnti
             message.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
         }
 
-        if (includeEntityTag && entityTagProvider != null)
+        if (includeEntityTag)
         {
             var entityTag = entityTagProvider.GetEntityTag(ETagKey);
             if (entityTag is not null)
