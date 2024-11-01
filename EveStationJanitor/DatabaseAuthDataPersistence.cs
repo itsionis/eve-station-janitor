@@ -33,7 +33,7 @@ public class DatabaseAuthDataPersistence(AppDbContext context) : IAuthentication
         };
     }
 
-    private string DecryptRefreshToken(byte[] encryptedRefreshToken)
+    private static string DecryptRefreshToken(byte[] encryptedRefreshToken)
     {
         var unprotectedBytes = ProtectedData.Unprotect(encryptedRefreshToken, null, DataProtectionScope.CurrentUser);
         return Encoding.UTF8.GetString(unprotectedBytes);
@@ -103,7 +103,7 @@ public class DatabaseAuthDataPersistence(AppDbContext context) : IAuthentication
         await context.SaveChangesAsync();
     }
 
-    private byte[] EncryptRefreshToken(string refreshToken)
+    private static byte[] EncryptRefreshToken(string refreshToken)
     {
         var refreshTokenBytes = Encoding.UTF8.GetBytes(refreshToken);
         return ProtectedData.Protect(refreshTokenBytes, null, DataProtectionScope.CurrentUser);
