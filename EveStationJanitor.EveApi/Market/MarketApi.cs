@@ -20,7 +20,7 @@ internal class MarketOrdersEndpointSpec(int regionId, int? itemTypeId, ApiMarket
 
     public string RelativeUrlPath => $"/markets/{regionId}/orders/";
 
-    public object? QueryKeyValues => new
+    public object QueryKeyValues => new
     {
         type_id = itemTypeId,
         order_type = orderType.ToString().ToLower(CultureInfo.InvariantCulture)
