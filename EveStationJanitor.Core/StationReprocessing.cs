@@ -21,7 +21,7 @@ public class StationReprocessing
         _skills = skills;
         _implants = implants;
 
-        var stationOwnerStandings = standings.GetStanding(station.OwnerCorporationId);
+        var stationOwnerStandings = standings.GetEffectiveStanding(station.OwnerCorporationId);
         StationReprocessingTaxPercent = TaxFormula.StationReprocessingEquipmentTax(station.ReprocessingTax, stationOwnerStandings);
     }
     

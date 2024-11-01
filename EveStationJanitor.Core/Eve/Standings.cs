@@ -1,12 +1,15 @@
 ﻿namespace EveStationJanitor.Core.Eve;
 
+using CorporationId = int;
+using Standing = double;
+
 public class Standings(Skills skills)
 {
-    private readonly Dictionary<int, double> _effectiveStandings = [];
+    private readonly Dictionary<CorporationId, (Standing Base, Standing Effective)> _standings = [];
 
-    public void AddStanding(int corporationId, double unmodifiedStanding, bool isCriminal = false)
+    public void AddStanding(CorporationId corporationId, Standing unmodifiedStanding, bool isCriminal = false)
     {
-        double effectiveStanding;
+        Standing effectiveStanding;
 
         // Determine the skill to apply based on the standing value and whether it's a criminal entity
         if (unmodifiedStanding >= 0)
@@ -23,24 +26,19 @@ public class Standings(Skills skills)
             effectiveStanding = CalculateEffectiveStanding(unmodifiedStanding, skillLevel, 0.04d); // 4% modifier for Diplomacy
         }
 
-        // Store the effective standing in the dictionary
-        _effectiveStandings[corporationId] = effectiveStanding;
+        _standings[corporationId] = (unmodifiedStanding, effectiveStanding);
     }
 
-    public double GetStanding(int corporationId)
+    public Standing GetEffectiveStanding(CorporationId corporationId)
     {
-        if (_effectiveStandings.TryGetValue(corporationId, out var standing))
-        {
-            return standing;
-        }
-
-        // Default to 0 if no standing found for the corporation
-        return 0;
+        return _standings.TryGetValue(corporationId, out var standings) 
+            ? standings.Effective
+            : 0.0;
     }
 
-    private static double CalculateEffectiveStanding(double unmodifiedStanding, int skillLevel, double modifier)
+    private static Standing CalculateEffectiveStanding(Standing unmodifiedStanding, int skillLevel, double modifier)
     {
-        const int maxStanding = 10;
+        const Standing maxStanding = 10;
         
         return unmodifiedStanding 
                + (maxStanding - unmodifiedStanding)

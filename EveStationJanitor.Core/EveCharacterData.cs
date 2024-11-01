@@ -44,6 +44,7 @@ internal class EveCharacterData(AppDbContext context, IAuthenticatedEveApiProvid
             var standings = new Standings(skills);
             foreach (var standing in apiStandings)
             {
+                // TODO - Implement criminal standings
                 standings.AddStanding(standing.FromId, standing.Standing);
             }
             return standings;
