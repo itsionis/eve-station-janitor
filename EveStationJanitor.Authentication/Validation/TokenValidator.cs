@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using NodaTime.Extensions;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http.Json;
+using System.Text.Json.Serialization;
 
 namespace EveStationJanitor.Authentication.Validation;
 
@@ -104,16 +105,14 @@ public class TokenValidator : ITokenValidator
             CharacterId = characterId,
             CharacterName = nameClaim,
             CharacterOwnerHash = ownerClaim,
-            AllianceId = affiliation.alliance_id,
-            CorporationId = affiliation.corporation_id,
-            FactionId = affiliation.faction_id,
+            AllianceId = affiliation.AllianceId,
+            CorporationId = affiliation.CorporationId,
+            FactionId = affiliation.FactionId,
         };
 
         return (authorizedtoken, characterInfo);
     }
-
-    private sealed record CharacterAffiliations(int? alliance_id, int character_id, int corporation_id, int? faction_id);
-
+    
     private IList<SecurityKey> FetchSecurityKeys()
     {
         var client = _httpClientFactory.CreateClient();
@@ -130,5 +129,20 @@ public class TokenValidator : ITokenValidator
 
         var keySet = new JsonWebKeySet(keySetJson);
         return keySet.GetSigningKeys();
+    }
+    
+    private sealed class CharacterAffiliations
+    {
+        [JsonPropertyName("alliance_id")]
+        public int? AllianceId { get; set; }
+
+        [JsonPropertyName("character_id")]
+        public int CharacterId { get; set; }
+
+        [JsonPropertyName("corporation_id")]
+        public int CorporationId { get; set; }
+        
+        [JsonPropertyName("faction_id")]
+        public int? FactionId { get; set; }
     }
 }
