@@ -8,9 +8,9 @@ namespace EveStationJanitor.EveApi.Esi;
 /// Handles the creation of <see cref="HttpRequestMessage"/>for the EVE Online API. This class can authenticate requests and apply ETag headers.
 /// </summary>
 /// <typeparam name="TResponse"></typeparam>
-internal class EveEsiRequest<TResponse>(IEveEsiEndpointSpec specification, IEntityTagProvider entityTagProvider, IBearerTokenProvider? tokenProvider = null)
+internal sealed class EveEsiRequest<TResponse>(IEveEsiEndpointSpec specification, IEntityTagProvider entityTagProvider, IBearerTokenProvider? tokenProvider = null)
 {
-    private static readonly Uri _uriBase = new("https://esi.evetech.net/latest/", UriKind.Absolute);
+    private static readonly Uri UriBase = new("https://esi.evetech.net/latest/", UriKind.Absolute);
     private readonly Dictionary<string, object?> _queryParameters = [];
 
     public string ETagKey => BuildUri().ToString();
@@ -43,10 +43,10 @@ internal class EveEsiRequest<TResponse>(IEveEsiEndpointSpec specification, IEnti
         return message;
     }
 
-    protected internal virtual Uri BuildUri()
+    private Uri BuildUri()
     {
         var path = specification.RelativeUrlPath;
-        var uriBuilder = _uriBase.AppendPathSegment(path)
+        var uriBuilder = UriBase.AppendPathSegment(path)
             .SetQueryParams(specification.QueryKeyValues)
             .AppendQueryParam("datasource", "tranquility");
 
