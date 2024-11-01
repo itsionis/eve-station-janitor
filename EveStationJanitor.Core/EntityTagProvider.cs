@@ -27,7 +27,7 @@ internal class EntityTagProvider : IEntityTagProvider
     {
         lock (_lock)
         {
-            var maybeEntityTag = _context.EntityTags.FirstOrDefault(tag => tag.Key == key);
+            var maybeEntityTag = _context.EntityTags.FirstOrDefault(entityTag => entityTag.Key == key);
             if (maybeEntityTag is not null)
             {
                 maybeEntityTag.Tag = tag;
