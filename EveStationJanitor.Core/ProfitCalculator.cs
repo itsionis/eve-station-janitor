@@ -19,9 +19,9 @@ public class ProfitCalculator
 
     public async Task<List<ItemFlipAppraisal>> FindMostProfitableOrders()
     {
-        var sellOrders = await _marketOrdersRepository.GetSellOrders(_stationReprocessing.Station);
-        var buyOrders = await _marketOrdersRepository.GetBuyOrders(_stationReprocessing.Station);
-
+        var sellOrders = await _marketOrdersRepository.GetAggregateSellOrders(_stationReprocessing.Station);
+        var buyOrders = await _marketOrdersRepository.GetAggregateBuyOrders(_stationReprocessing.Station);
+        
         var market = new SimulatedMarket(buyOrders);
         var flips = new List<ItemFlipAppraisal>();
 
@@ -55,25 +55,19 @@ public class ProfitCalculator
         return flips;
     }
 
-    public (MarketOrder Order, ItemFlipAppraisal Flip)? FindMostProfitableOrder(SimulatedMarket market, List<MarketOrder> sellOrders)
+    public (AggregatedMarketOrder Order, ItemFlipAppraisal Flip)? FindMostProfitableOrder(SimulatedMarket market, List<AggregatedMarketOrder> sellOrders)
     {
-        var sellOrdersByItemId = sellOrders
-            .GroupBy(order => order.TypeId)
-            .ToDictionary(
-            group => group.Key,
-            group => group.OrderBy(order => order.Price).ToList());
-
-        (MarketOrder, ItemFlipAppraisal)? best = null;
+        (AggregatedMarketOrder, ItemFlipAppraisal)? best = null;
         var maxProfit = decimal.MinValue;
 
-        foreach (var orderGroup in sellOrdersByItemId)
+        var sellOrdersByItem = sellOrders.GroupBy(order => order.ItemType.Id);
+        foreach (var itemSellOrders in sellOrdersByItem)
         {
-            foreach (var sellOrder in orderGroup.Value)
+            foreach (var sellOrder in itemSellOrders)
             {
                 var flippableUnit = sellOrder.ItemType.PortionSize;
                 var flippableVolume = (sellOrder.VolumeRemaining / flippableUnit) * flippableUnit;
 
-                // TODO - Could combine with other orders to acquire a flippable quantity
                 if (flippableVolume == 0)
                 {
                     continue;
@@ -89,7 +83,7 @@ public class ProfitCalculator
                 // If no further profits are possible for this item type, break early
                 if (appraisal.GrossProfit <= 0)
                 {
-                    break;
+                    // break;
                 }
             }
         }
@@ -97,12 +91,12 @@ public class ProfitCalculator
         return best;
     }
 
-    private ItemFlipAppraisal AppraiseFlip(SimulatedMarket market, ItemType itemToFlip, double price, int quantity)
+    private ItemFlipAppraisal AppraiseFlip(SimulatedMarket market, ItemType itemToFlip, double price, long quantity)
     {
         return AppraiseFlip(_salesTransactionTaxPercent, _stationReprocessing, market, itemToFlip, price, quantity);
     }
 
-    public static ItemFlipAppraisal AppraiseFlip(decimal salesTransactionTaxPercent, StationReprocessing reprocessing, SimulatedMarket market, ItemType itemToFlip, double price, int quantity)
+    public static ItemFlipAppraisal AppraiseFlip(decimal salesTransactionTaxPercent, StationReprocessing reprocessing, SimulatedMarket market, ItemType itemToFlip, double price, long quantity)
     {
         var revenue = 0m;
         

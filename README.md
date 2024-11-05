@@ -15,8 +15,9 @@ Persisted data and logs can be found in `%LOCALAPPDATA%\Eve Station Janitor`
 Run directly with `dotnet`
 
 ```pwsh
-cd EveStationJanitor
-dotnet run --configuration Release
+dotnet build --configuration Release
+cd EveStationJanitor\bin\Release\net8.0-windows
+.\EveStationJanitor.exe
 ```
 
 Or run the published binary

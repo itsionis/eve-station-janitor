@@ -31,5 +31,9 @@ public class StationConfiguration : IEntityTypeConfiguration<Station>
         builder.HasOne(station => station.SolarSystem)
             .WithMany(system => system.Stations)
             .HasForeignKey(station => station.SolarSystemId);
+
+        builder.HasIndex(s => s.Id)
+            .IsUnique()
+            .IsDescending();
     }
 }

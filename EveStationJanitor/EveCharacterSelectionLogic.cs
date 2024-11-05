@@ -1,12 +1,11 @@
-﻿using Spectre.Console;
+﻿using EveStationJanitor.Authentication;
+using Spectre.Console;
 using EveStationJanitor.Core.DataAccess;
 using Microsoft.EntityFrameworkCore;
-using EveStationJanitor.Authentication;
-using EveStationJanitor.Authentication.Persistence;
 
 namespace EveStationJanitor;
 
-internal class EveCharacterSelectionLogic(AppDbContext context, IAuthenticationClient authenticationClient, IAuthenticationDataProvider authenticationDataProvider)
+internal class EveCharacterSelectionLogic(AppDbContext context, IAuthenticationDataProvider authenticationDataProvider)
 {
     public async Task<int?> PromptForCharacterId()
     {
@@ -50,16 +49,14 @@ internal class EveCharacterSelectionLogic(AppDbContext context, IAuthenticationC
     private async Task<int?> AddNewCharacter()
     {
         // Start the authentication flow
-        var authenticationResult = await authenticationClient.Authenticate();
-        if (authenticationResult is null)
+        var characterId = await authenticationDataProvider.AuthenticateNewCharacter();
+        if (characterId is null)
         {
             AnsiConsole.MarkupLine("[red]Authentication failed[/]");
             return await PromptForCharacterId();
         }
 
-        var (token, characterInfo) = authenticationResult.Value;
-        await authenticationDataProvider.WriteCharacterAuthData(characterInfo.CharacterId, token, characterInfo);
-        return characterInfo.CharacterId;
+        return characterId;
     }
 
     private async Task<int?> RemoveCharacter()
@@ -84,7 +81,7 @@ internal class EveCharacterSelectionLogic(AppDbContext context, IAuthenticationC
                 return await PromptForCharacterId();
             }
 
-            await authenticationDataProvider.RemoveCharacter(characterToRemove.EveCharacterId);
+            await authenticationDataProvider.DeleteCharacter(characterToRemove.EveCharacterId);
             return await PromptForCharacterId();
         }
         else if (choice is ActionChoice<int?> actionChoice)

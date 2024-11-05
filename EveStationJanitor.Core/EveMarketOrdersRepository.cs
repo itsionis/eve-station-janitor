@@ -10,21 +10,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace EveStationJanitor.Core;
 
-internal class EveMarketOrdersRepository : IEveMarketOrdersRepository
+internal class EveMarketOrdersRepository(AppDbContext context, IPublicEveApi eveApiProvider) : IEveMarketOrdersRepository
 {
-    private readonly AppDbContext _context;
-    private readonly IPublicEveApi _eveApiProvider;
-
-    public EveMarketOrdersRepository(AppDbContext context, IPublicEveApi eveApiProvider)
-    {
-        _context = context;
-        _eveApiProvider = eveApiProvider;
-    }
-
     public async Task<OneOf<Success, Error<string>>> LoadOrders(Station station)
     {
         Console.WriteLine($"Loading market orders in {station.SolarSystem.Region.Name}...");
-        var apiOrders = await _eveApiProvider.Markets.GetMarketOrders(station.SolarSystem.RegionId);
+        var apiOrders = await eveApiProvider.Markets.GetMarketOrders(station.SolarSystem.RegionId);
 
         if (apiOrders.TryPickT0(out var orders, out var otherwise))
         {
@@ -42,9 +33,9 @@ internal class EveMarketOrdersRepository : IEveMarketOrdersRepository
             });
     }
 
-    public async Task<List<MarketOrder>> GetSellOrders(Station station)
+    public async Task<List<AggregatedMarketOrder>> GetAggregateSellOrders(Station station)
     {
-        return await _context.MarketOrders
+        var orders = await context.MarketOrders
             .AsNoTracking()
             .AsSplitQuery()
             .Include(order => order.ItemType)
@@ -53,59 +44,94 @@ internal class EveMarketOrdersRepository : IEveMarketOrdersRepository
             .Include(order => order.ItemType)
             .ThenInclude(itemType => itemType.Group)
             .ThenInclude(itemGroup => itemGroup.Category)
-            .Where(order => order.IsBuyOrder == false) // Sell orders
-            .Where(order => order.Station == station) // In our station
+            .Where(order => !order.IsBuyOrder) // Sell orders
+            .Where(order => order.LocationId == station.Id) // In our station
             .Where(order => order.ItemType.Materials.Any()) // Can be reprocessed
+            .Select(order => new 
+            {
+                order.ItemType,
+                order.Price,
+                order.VolumeRemaining
+            })
             .ToListAsync();
+
+        return orders
+            .GroupBy(order => new { order.ItemType.Id, order.Price })
+            .Select(group => new AggregatedMarketOrder(
+                group.First().ItemType,
+                group.Key.Price,
+                group.Sum(o => o.VolumeRemaining)))
+            .OrderBy(order => order.ItemType.Id)
+            .ThenBy(order => order.Price)
+            .ToList();
     }
 
-    public async Task<List<MarketOrder>> GetBuyOrders(Station station)
+    public async Task<List<AggregatedMarketOrder>> GetAggregateBuyOrders(Station station)
     {
-        return await _context.MarketOrders
+        var orders = await context.MarketOrders
             .AsNoTracking()
             .AsSplitQuery()
-            .Where(order => order.IsBuyOrder == true) // Buy orders
-            .Where(order => order.Station == station) // In our station
             .Include(order => order.ItemType)
+            .Where(order => order.IsBuyOrder) // Buy orders
+            .Where(order => order.LocationId == station.Id) // In our station
+            .Select(order => new 
+            {
+                order.ItemType,
+                order.Price,
+                order.VolumeRemaining
+            })
             .ToListAsync();
+
+        return orders
+            .GroupBy(order => new { order.ItemType.Id, order.Price })
+            .Select(group => new AggregatedMarketOrder(
+                group.First().ItemType,
+                group.Key.Price,
+                group.Sum(o => o.VolumeRemaining)))
+            .OrderBy(order=>order.ItemType.Id)
+            .ThenByDescending(order => order.Price)
+            .ToList();
     }
 
     private async Task SaveMarketOrders(Station station, List<ApiMarketOrder> ordersFromApi)
     {
         var orders = ordersFromApi.Where(order => order.LocationId == station.Id)
-            .Select(o =>
+            .Select(o => new MarketOrder
             {
-                return new MarketOrder
-                {
-                    Duration = Duration.FromDays(o.Duration),
-                    TypeId = o.TypeId,
-                    IsBuyOrder = o.IsBuyOrder,
-                    Issued = InstantPattern.General.Parse(o.Issued).Value,
-                    LocationId = o.LocationId,
-                    MinVolume = o.MinVolume,
-                    OrderId = o.OrderId,
-                    Price = o.Price,
-                    Range = MarketOrder.ParseOrderRange(o.Range),
-                    SystemId = o.SystemId,
-                    VolumeTotal = o.VolumeTotal,
-                    VolumeRemaining = o.VolumeRemaining,
-                };
+                Duration = Duration.FromDays(o.Duration),
+                TypeId = o.TypeId,
+                IsBuyOrder = o.IsBuyOrder,
+                Issued = InstantPattern.General.Parse(o.Issued).Value,
+                LocationId = o.LocationId,
+                MinVolume = o.MinVolume,
+                OrderId = o.OrderId,
+                Price = o.Price,
+                Range = MarketOrder.ParseOrderRange(o.Range),
+                SystemId = o.SystemId,
+                VolumeTotal = o.VolumeTotal,
+                VolumeRemaining = o.VolumeRemaining,
             }).ToList();
 
         // Sometimes the SDE is behind live data. Load any missing item, groups and categories to prevent foreign key violations
         await EnsureOrderItemsConsistency(orders);
         
         // Replace all existing
-        var ordersToRemove = _context.MarketOrders.Where(order => order.LocationId == station.Id);
-        _context.MarketOrders.RemoveRange(ordersToRemove);
-        _context.MarketOrders.AddRange(orders);
-        await _context.SaveChangesAsync();
+        var ordersToRemove = context.MarketOrders.Where(order => order.LocationId == station.Id);
+        await ordersToRemove.ExecuteDeleteAsync();
+
+        const int MarketOrderSaveBatchSize = 50_000;
+        
+        foreach (var batch in orders.Chunk(MarketOrderSaveBatchSize))
+        {
+            await context.MarketOrders.AddRangeAsync(batch);
+            await context.SaveChangesAsync();
+        }
     }
 
     private async Task<bool> EnsureOrderItemsConsistency(IReadOnlyList<MarketOrder> orders)
     {
         var itemIdsInOrders = orders.Select(order => order.TypeId).ToHashSet();
-        var itemIdsInDatabase = _context.ItemTypes.Select(item => item.Id).ToHashSet();
+        var itemIdsInDatabase = context.ItemTypes.Select(item => item.Id).ToHashSet();
         var missingItemIds = itemIdsInOrders.Except(itemIdsInDatabase).ToList();
 
         if (missingItemIds.Count == 0)
@@ -122,19 +148,19 @@ internal class EveMarketOrdersRepository : IEveMarketOrdersRepository
             }
         }
 
-        await _context.SaveChangesAsync();
+        await context.SaveChangesAsync();
         return true;
     }
 
     private async Task<bool> EnsureItem(int itemId)
     {
-        var maybeItem = _context.ItemTypes.FirstOrDefault(itemType => itemType.Id == itemId);
+        var maybeItem = context.ItemTypes.FirstOrDefault(itemType => itemType.Id == itemId);
         if (maybeItem is not null)
         {
             return true;
         }
 
-        var apiItem = await _eveApiProvider.Universe.GetItemType(itemId);
+        var apiItem = await eveApiProvider.Universe.GetItemType(itemId);
         if (!apiItem.TryPickT0(out var item, out var error))
         {
             Console.WriteLine($"Attempted to retrieve missing item {itemId}, but ESI did not return a result.");
@@ -157,21 +183,21 @@ internal class EveMarketOrdersRepository : IEveMarketOrdersRepository
             Volume = item.Volume
         };
 
-        _context.ItemTypes.Add(newItem);
-        _context.SaveChanges();
+        context.ItemTypes.Add(newItem);
+        await context.SaveChangesAsync();
 
         return true;
     }
 
     private async Task<bool> EnsureItemGroup(int id)
     {
-        var maybeItemGroup = _context.ItemGroups.FirstOrDefault(group => group.Id == id);
+        var maybeItemGroup = context.ItemGroups.FirstOrDefault(group => group.Id == id);
         if (maybeItemGroup is not null)
         {
             return true;
         }
 
-        var apiItemGroup = await _eveApiProvider.Universe.GetItemGroup(id);
+        var apiItemGroup = await eveApiProvider.Universe.GetItemGroup(id);
         if (!apiItemGroup.TryPickT0(out var itemGroup, out var error))
         {
             Console.WriteLine($"Tried to get missing item group with ID {id} but ESI did not return a result");
@@ -191,24 +217,24 @@ internal class EveMarketOrdersRepository : IEveMarketOrdersRepository
             CategoryId = itemGroup.CategoryId,
         };
 
-        _context.ItemGroups.Add(newItemGroup);
-        _context.SaveChanges();
+        context.ItemGroups.Add(newItemGroup);
+        await context.SaveChangesAsync();
 
         return true;
     }
 
     private async Task<bool> EnsureItemCategory(int id)
     {
-        var maybeItemCategory = _context.ItemCategories.FirstOrDefault(category => category.Id == id);
+        var maybeItemCategory = context.ItemCategories.FirstOrDefault(category => category.Id == id);
         if (maybeItemCategory is not null)
         {
             return true;
         }
 
-        var apiItemCategory = await _eveApiProvider.Universe.GetItemCategory(id);
+        var apiItemCategory = await eveApiProvider.Universe.GetItemCategory(id);
         if (!apiItemCategory.TryPickT0(out var itemCategory, out var error))
         {
-            Console.WriteLine($"Tried to get missing item categoory with ID {id} but ESI did not return a result");
+            Console.WriteLine($"Tried to get missing item category with ID {id} but ESI did not return a result");
             return false;
         }
 
@@ -218,8 +244,8 @@ internal class EveMarketOrdersRepository : IEveMarketOrdersRepository
             Name = itemCategory.Name,
         };
 
-        _context.ItemCategories.Add(newItemCategory);
-        _context.SaveChanges();
+        context.ItemCategories.Add(newItemCategory);
+        await context.SaveChangesAsync();
 
         return true;
     }

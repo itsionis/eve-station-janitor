@@ -1,10 +1,9 @@
-﻿using EveStationJanitor.Authentication.Persistence;
-using NodaTime;
+﻿using NodaTime;
 using System.Runtime.Versioning;
 
 namespace EveStationJanitor.Authentication;
 
-public class BearerTokenProvider(int characterId, IAuthenticationClient authenticationClient, IAuthenticationDataProvider persistence, IClock clock) : IBearerTokenProvider
+internal class BearerTokenProvider(int characterId, IAuthenticationClient authenticationClient, IAuthenticationDataProvider persistence, IClock clock) : IBearerTokenProvider
 {
     [SupportedOSPlatform(platformName: "windows")]
     public async Task<string?> GetToken()
@@ -26,7 +25,7 @@ public class BearerTokenProvider(int characterId, IAuthenticationClient authenti
             }
 
             var (tokens, characterData) = maybeToken.Value;
-            await persistence.WriteCharacterAuthData(characterId, tokens, characterData);
+            await persistence.SaveCharacterAuthData(tokens, characterData);
             return tokens;
         }
 
@@ -41,7 +40,7 @@ public class BearerTokenProvider(int characterId, IAuthenticationClient authenti
             }
 
             var (tokens, characterData) = refreshedToken.Value;
-            await persistence.WriteCharacterAuthData(characterId, tokens, characterData);
+            await persistence.SaveCharacterAuthData(tokens, characterData);
             return tokens;
         }
 

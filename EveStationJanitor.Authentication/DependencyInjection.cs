@@ -1,5 +1,4 @@
-﻿using EveStationJanitor.Authentication.Persistence;
-using EveStationJanitor.Authentication.Validation;
+﻿using EveStationJanitor.Authentication.Validation;
 using Microsoft.Extensions.DependencyInjection;
 using NodaTime;
 using NodaTime.Serialization.SystemTextJson;

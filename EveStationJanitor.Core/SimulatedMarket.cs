@@ -1,6 +1,4 @@
-﻿using EveStationJanitor.Core.DataAccess.Entities;
-
-namespace EveStationJanitor.Core;
+﻿namespace EveStationJanitor.Core;
 
 public class SimulatedMarket
 {
@@ -10,15 +8,15 @@ public class SimulatedMarket
     {
     }
     
-    public SimulatedMarket(IReadOnlyCollection<MarketOrder> buyOrders)
+    public SimulatedMarket(IReadOnlyCollection<AggregatedMarketOrder> buyOrders)
     {
         foreach (var order in buyOrders)
         {
-            AddOrder(order.TypeId, order.Price, order.VolumeRemaining);
+            AddOrder(order.ItemType.Id, order.Price, order.VolumeRemaining);
         }
     }
 
-    public void AddOrder(int itemTypeId, double price, int volumeRemaining)
+    public void AddOrder(int itemTypeId, double price, long volumeRemaining)
     {
         if (!_buyOrders.TryGetValue(itemTypeId, out var itemBuyOrders))
         {
@@ -96,7 +94,7 @@ public class SimulatedMarket
             if (order.VolumeRemaining > fillAmount)
             {
                 // Partially filled order goes back to queue with reduced volume
-                orderQueue.Enqueue(order.WithVolume(order.VolumeRemaining - (int)fillAmount), -order.Price);
+                orderQueue.Enqueue(order.WithVolume(order.VolumeRemaining - fillAmount), -order.Price);
             }
             // Completely filled orders are discarded
             
@@ -114,8 +112,7 @@ public class SimulatedMarket
     public readonly record struct BuyOrder
     {
         public required decimal Price { get; init; }
-        public required int VolumeRemaining { get; init; }
-
-        public BuyOrder WithVolume(int newVolume) => this with { VolumeRemaining = newVolume };
+        public required long VolumeRemaining { get; init; }
+        public BuyOrder WithVolume(long newVolume) => this with { VolumeRemaining = newVolume };
     }
 }

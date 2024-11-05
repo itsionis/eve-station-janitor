@@ -18,9 +18,7 @@ internal sealed class AuthenticationClient : IAuthenticationClient
         "esi-skills.read_skills.v1",
         "esi-characters.read_standings.v1"
     ];
-
-    public IReadOnlySet<string> Scopes => _scopes;
-
+    
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly ITokenValidator _tokenValidator;
     private readonly JsonSerializerOptions _jsonOptions;
@@ -44,11 +42,23 @@ internal sealed class AuthenticationClient : IAuthenticationClient
         _state = Guid.NewGuid().ToString();
     }
 
-    public async Task<(AuthorizedToken, EveSsoCharacterInfo)?> Authenticate()
+    public async Task<(AuthorizedToken, EveSsoCharacterInfo)?> Authenticate(int? eveCharacterId)
     {
-        return await StartAuthCallbackListener(
+        var result = await StartAuthCallbackListener(
             HandleAuthCallback,
             HandleAuthorizationCode);
+
+        // Verify the character request is authenticated.
+        if (eveCharacterId != null && result != null)
+        {
+            var characterInfo = result.Value.Item2;
+            if (characterInfo.CharacterId != eveCharacterId)
+            {
+                return null;
+            }
+        }
+        
+        return result;
     }
 
     private async Task<(AuthorizedToken, EveSsoCharacterInfo)?> StartAuthCallbackListener(

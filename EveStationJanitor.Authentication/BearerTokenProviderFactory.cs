@@ -1,5 +1,4 @@
-﻿using EveStationJanitor.Authentication.Persistence;
-using NodaTime;
+﻿using NodaTime;
 
 namespace EveStationJanitor.Authentication;
 

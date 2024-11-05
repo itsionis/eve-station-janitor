@@ -40,9 +40,9 @@ public class MarketOrder
 
     public ItemType ItemType { get; set; } = null!;
 
-    public required int VolumeRemaining { get; set; }
+    public required long VolumeRemaining { get; set; }
 
-    public required int VolumeTotal { get; set; }
+    public required long VolumeTotal { get; set; }
 
     public static OrderRange ParseOrderRange(string range)
     {

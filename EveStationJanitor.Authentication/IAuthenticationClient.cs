@@ -2,8 +2,7 @@
 
 public interface IAuthenticationClient
 {
-    public Task<(AuthorizedToken, EveSsoCharacterInfo)?> Authenticate();
+    public Task<(AuthorizedToken, EveSsoCharacterInfo)?> Authenticate(int? eveCharacterId = null);
+    
     Task<(AuthorizedToken, EveSsoCharacterInfo)?> Refresh(AuthorizedToken token);
-
-    public IReadOnlySet<string> Scopes { get; }
 }

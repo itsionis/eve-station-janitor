@@ -5,7 +5,6 @@ using Spectre.Console;
 using EveStationJanitor.Core.DataAccess.Entities;
 using System.Globalization;
 using EveStationJanitor.Authentication;
-using EveStationJanitor.Authentication.Persistence;
 
 namespace EveStationJanitor;
 
@@ -13,18 +12,17 @@ internal sealed class Janitor(
     AppDbContext context,
     IEveCharacterDataProvider eveCharacterDataProvider,
     IEveMarketOrdersRepository marketOrdersRepository,
-    IAuthenticationClient authenticationClient,
     IAuthenticationDataProvider authenticationDataProvider)
 {
-    public async Task Run()
+    public async Task Run(string? characterName = null, TradeHubStation? tradeHubStationChoice = null)
     {
-        var characterId = await PromptUserForCharacter();
+        var characterId = await GetCharacterId(characterName);
         if (characterId is null)
         {
             return;
         }
 
-        var station = PromptUserForTradeHub();
+        var station = GetTradeHubStation(tradeHubStationChoice);
         if (station is null)
         {
             return;
@@ -67,6 +65,19 @@ internal sealed class Janitor(
         WriteResultsTable(flips);
     }
 
+    private Station? GetTradeHubStation(TradeHubStation? tradeHubSystem)
+    {
+        if (tradeHubSystem is null)
+        {
+            return PromptUserForTradeHub();
+        }
+            
+        return context.Stations
+            .Include(station => station.SolarSystem)
+            .ThenInclude(station => station.Region)
+            .FirstOrDefault(station => station.Name == tradeHubSystem.StationName);
+    }
+
     private static void WriteResultsTable(IReadOnlyList<ItemFlipAppraisal> flips)
     {
         var table = new Table();
@@ -88,23 +99,49 @@ internal sealed class Janitor(
         table.AddColumn("Margin");
         table.Columns[5].RightAligned();
 
-        foreach (var flip in flips)
+        table.AddColumn("Score");
+        table.Columns[6].RightAligned();
+
+        foreach (var flip in flips.OrderByDescending(flip => flip.Score))
         {
             table.AddRow(
                 flip.Item.Name,
                 flip.QuantityToBuy.ToString("N0", CultureInfo.CurrentCulture),
-                (flip.CostOfGoodsSold / flip.QuantityToBuy).ToString("N0", CultureInfo.CurrentCulture),
-                flip.CostOfGoodsSold.ToString("N0", CultureInfo.CurrentCulture),
-                flip.GrossProfit.ToString("N0", CultureInfo.CurrentCulture),
-                flip.ProfitMargin.ToString("P2", CultureInfo.CurrentCulture));
+                (flip.CostOfGoodsSold / flip.QuantityToBuy).ToString("N2", CultureInfo.CurrentCulture),
+                flip.CostOfGoodsSold.ToString("N2", CultureInfo.CurrentCulture),
+                flip.GrossProfit.ToString("N2", CultureInfo.CurrentCulture),
+                flip.ProfitMargin.ToString("P2", CultureInfo.CurrentCulture),
+                flip.Score.ToString("N2", CultureInfo.CurrentCulture));
         }
         
         AnsiConsole.Write(table);
     }
 
-    private async Task<int?> PromptUserForCharacter()
+    private async Task<int?> GetCharacterId(string? characterName)
     {
-        var prompter = new EveCharacterSelectionLogic(context, authenticationClient, authenticationDataProvider);
+        var prompter = new EveCharacterSelectionLogic(context, authenticationDataProvider);
+        if (characterName is null)
+        {
+            return await prompter.PromptForCharacterId();
+        }
+        
+        // If the character is found, then we need to make sure it's authenticated. When a character is picked from
+        // the list this occurs automatically.
+        var maybeCharacter = await context.Characters.FirstOrDefaultAsync(character => character.Name == characterName);
+        if (maybeCharacter is not null)
+        {
+            var isAuthenticated = await authenticationDataProvider.EnsureCharacterAuthenticated(maybeCharacter.EveCharacterId);
+            if (isAuthenticated)
+            {
+                return maybeCharacter.EveCharacterId;
+            }
+            
+            AnsiConsole.MarkupLine(" {0} is not authenticated. Sign in as this character or pick a new one.", characterName);
+            return await prompter.PromptForCharacterId();
+        }
+        
+        // Character not found, prompt them for one...
+        AnsiConsole.MarkupLine("Could not find character {0}", characterName);
         return await prompter.PromptForCharacterId();
     }
 
@@ -113,11 +150,11 @@ internal sealed class Janitor(
         var prompt = new SelectionPrompt<string>()
             .Title("Select a trade hub:")
             .AddChoices([
-                "Jita IV - Moon 4 - Caldari Navy Assembly Plant",
-                "Amarr VIII (Oris) - Emperor Family Academy",
-                "Rens VI - Moon 8 - Brutor Tribe Treasury",
-                "Dodixie IX - Moon 20 - Federation Navy Assembly Plant",
-                "Hek VIII - Moon 12 - Boundless Creation Factory"
+                TradeHubStation.Jita.StationName,
+                TradeHubStation.Amarr.StationName,
+                TradeHubStation.Rens.StationName,
+                TradeHubStation.Dodixie.StationName,
+                TradeHubStation.Hek.StationName
             ]);
 
         var tradeHubChoice = AnsiConsole.Prompt(prompt);

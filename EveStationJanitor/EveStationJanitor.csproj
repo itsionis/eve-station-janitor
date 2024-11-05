@@ -23,6 +23,7 @@
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" PrivateAssets="All">
 		  <TreatAsUsed>true</TreatAsUsed>
 		</PackageReference>
+		<PackageReference Include="System.CommandLine" />
 	</ItemGroup>
 
 	<ItemGroup>

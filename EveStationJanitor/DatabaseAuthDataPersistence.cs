@@ -1,5 +1,4 @@
 ﻿using EveStationJanitor.Authentication;
-using EveStationJanitor.Authentication.Persistence;
 using EveStationJanitor.Core.DataAccess.Entities;
 using EveStationJanitor.Core.DataAccess;
 using Microsoft.EntityFrameworkCore;
@@ -7,7 +6,7 @@ using System.Security.Cryptography;
 
 namespace EveStationJanitor;
 
-public class DatabaseAuthDataPersistence(AppDbContext context) : IAuthenticationDataProvider
+public class DatabaseAuthDataPersistence(AppDbContext context, IAuthenticationClient authenticationClient) : IAuthenticationDataProvider
 {
     public async Task<AuthorizedToken?> GetAuthTokens(int eveCharacterId)
     {
@@ -38,10 +37,9 @@ public class DatabaseAuthDataPersistence(AppDbContext context) : IAuthentication
         return Encoding.UTF8.GetString(unprotectedBytes);
     }
 
-    public async Task WriteCharacterAuthData(int eveCharacterId, AuthorizedToken token, EveSsoCharacterInfo info)
+    public async Task SaveCharacterAuthData(AuthorizedToken token, EveSsoCharacterInfo info)
     {
-        var character = await context.Characters.FirstOrDefaultAsync(c => c.EveCharacterId == eveCharacterId);
-
+        var character = await context.Characters.FirstOrDefaultAsync(c => c.EveCharacterId == info.CharacterId);
         if (character == null)
         {
             character = new Character
@@ -71,7 +69,7 @@ public class DatabaseAuthDataPersistence(AppDbContext context) : IAuthentication
 
         var authToken = await context.CharacterAuthTokens
             .Include(t => t.Scopes)
-            .FirstOrDefaultAsync(t => t.Character.EveCharacterId == eveCharacterId);
+            .FirstOrDefaultAsync(t => t.Character.EveCharacterId == info.CharacterId);
 
         if (authToken == null)
         {
@@ -108,30 +106,55 @@ public class DatabaseAuthDataPersistence(AppDbContext context) : IAuthentication
         return ProtectedData.Protect(refreshTokenBytes, null, DataProtectionScope.CurrentUser);
     }
 
-    public async Task<EveSsoCharacterInfo?> GetCharacterInfo(int eveCharacterId)
-    {
-        var character = await context.Characters
-            .FirstOrDefaultAsync(c => c.EveCharacterId == eveCharacterId);
-
-        if (character == null)
-            return null;
-
-        return new EveSsoCharacterInfo
-        {
-            CharacterId = character.EveCharacterId,
-            CharacterName = character.Name,
-            CharacterOwnerHash = character.CharacterOwnerHash,
-            AllianceId = character.AllianceId,
-            CorporationId = character.CorporationId,
-            FactionId = character.FactionId,
-        };
-    }
-
-    public async Task RemoveCharacter(int characterId)
+    public async Task DeleteCharacter(int characterId)
     {
         var character = context.Characters.FirstOrDefault(f => f.EveCharacterId == characterId);
         if (character is null) return;
         context.Remove(character);
         await context.SaveChangesAsync();
+    }
+
+    public async Task<bool> EnsureCharacterAuthenticated(int eveCharacterId)
+    {
+        var characterTokens = await GetAuthTokens(eveCharacterId);
+        if (characterTokens is null)
+        {
+            // Could not acquire authentication tokens for character. Start a new auth flow for that specific character.
+            var authenticationResult = await authenticationClient.Authenticate(eveCharacterId);
+            if (authenticationResult is null)
+            {
+                return false;
+            }
+            
+            var (tokens, character) = authenticationResult.Value;
+            await SaveCharacterAuthData(tokens, character);
+        }
+        else
+        {
+            // Character has tokens, give them a refresh just in-case they're expired...
+            var refreshResult = await authenticationClient.Refresh(characterTokens);
+            if (refreshResult is null)
+            {
+                return false;
+            }
+            
+            var (tokens, character) = refreshResult.Value;
+            await SaveCharacterAuthData(tokens, character);
+        }
+
+        return true;
+    }
+
+    public async Task<int?> AuthenticateNewCharacter()
+    {
+        var authenticationResult = await authenticationClient.Authenticate();
+        if (authenticationResult is null)
+        {
+            return null;
+        }
+        
+        var (authorizedToken, characterInfo) = authenticationResult.Value;
+        await SaveCharacterAuthData(authorizedToken, characterInfo);
+        return characterInfo.CharacterId;
     }
 }
