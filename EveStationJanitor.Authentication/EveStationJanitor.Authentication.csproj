@@ -12,6 +12,5 @@
 		<PackageReference Include="OneOf.SourceGenerator" />
 		<PackageReference Include="System.IdentityModel.Tokens.Jwt" />
 		<PackageReference Include="NodaTime.Serialization.SystemTextJson" />
-		<PackageReference Include="System.Security.Cryptography.ProtectedData" />	
 	</ItemGroup>
 </Project>
