@@ -80,8 +80,12 @@ internal sealed class Janitor(
 
     private static void WriteResultsTable(IReadOnlyList<ItemFlipAppraisal> flips)
     {
+        var totalProfitAvailable = flips.Sum(f => f.GrossProfit);
+        AnsiConsole.WriteLine("Profit available: {0:N2}", totalProfitAvailable);
+        
         var table = new Table();
-
+        table.Border = TableBorder.Rounded;
+        
         table.AddColumn("Item");
 
         table.AddColumn("Quantity");
@@ -102,16 +106,23 @@ internal sealed class Janitor(
         table.AddColumn("Score");
         table.Columns[6].RightAligned();
 
-        foreach (var flip in flips.OrderByDescending(flip => flip.Score))
+        var flipsGroupedByItem = flips
+            .GroupBy(flip => flip.Item.Id)
+            .OrderByDescending(itemFlips => itemFlips.Max(g => g.Score));
+        
+        foreach (var itemFlips in flipsGroupedByItem)
         {
-            table.AddRow(
-                flip.Item.Name,
-                flip.QuantityToBuy.ToString("N0", CultureInfo.CurrentCulture),
-                (flip.CostOfGoodsSold / flip.QuantityToBuy).ToString("N2", CultureInfo.CurrentCulture),
-                flip.CostOfGoodsSold.ToString("N2", CultureInfo.CurrentCulture),
-                flip.GrossProfit.ToString("N2", CultureInfo.CurrentCulture),
-                flip.ProfitMargin.ToString("P2", CultureInfo.CurrentCulture),
-                flip.Score.ToString("N2", CultureInfo.CurrentCulture));
+            foreach (var flip in itemFlips)
+            {
+                table.AddRow(
+                    flip.Item.Name,
+                    flip.QuantityToBuy.ToString("N0", CultureInfo.CurrentCulture),
+                    (flip.CostOfGoodsSold / flip.QuantityToBuy).ToString("N2", CultureInfo.CurrentCulture),
+                    flip.CostOfGoodsSold.ToString("N2", CultureInfo.CurrentCulture),
+                    flip.GrossProfit.ToString("N2", CultureInfo.CurrentCulture),
+                    flip.ProfitMargin.ToString("P2", CultureInfo.CurrentCulture),
+                    flip.Score.ToString("N2", CultureInfo.CurrentCulture));
+            }
         }
         
         AnsiConsole.Write(table);
