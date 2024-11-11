@@ -4,10 +4,9 @@ using EveStationJanitor.Core.Eve.Formula;
 
 namespace EveStationJanitor.Core;
 
-public class StationReprocessing
+public class StationReprocessing : IReprocessingFacility
 {
     private readonly OreReprocessing _oreReprocessing;
-    private readonly Station _station;
     private readonly Skills _skills;
     private readonly CloneImplants _implants;
     private readonly decimal _stationBaseYield;
@@ -15,35 +14,31 @@ public class StationReprocessing
     public StationReprocessing(OreReprocessing oreReprocessing, Station station, Skills skills, Standings standings, CloneImplants implants)
     {
         _oreReprocessing = oreReprocessing;
-        _station = station;
-        _stationBaseYield = (decimal)_station.ReprocessingEfficiency;
+        _stationBaseYield = (decimal)station.ReprocessingEfficiency;
         _skills = skills;
         _implants = implants;
 
         var stationOwnerStandings = standings.GetEffectiveStanding(station.OwnerCorporationId);
-        StationReprocessingTaxPercent = TaxFormula.StationReprocessingEquipmentTax(station.ReprocessingTax, stationOwnerStandings);
+        ReprocessingTaxPercent = TaxFormula.StationReprocessingEquipmentTax(station.ReprocessingTax, stationOwnerStandings);
     }
     
-    public Station Station => _station;
+    public decimal ReprocessingTaxPercent { get; }
 
-    public decimal StationReprocessingTaxPercent { get; }
-
-    public long ReprocessedMaterialQuantity(ItemTypeMaterial material)
+    public long ReprocessedMaterialQuantity(ItemType itemBeingReprocessed, int baseReprocessedQuantity)
     {
-        var itemBeingReprocessed = material.ItemType;
-
         const int asteroidCategoryId = 25;
+        decimal yieldPercent;
+
         if (itemBeingReprocessed.Group.Category.Id == asteroidCategoryId)
         {
             var oreReprocessingSkill = _oreReprocessing.GetOreReprocessingSkillLevel(itemBeingReprocessed.Id);
-            var quantityWithBonusYield = material.Quantity;
-            var yieldPercent = ReprocessingFormula.StationOreYield(_stationBaseYield, _skills.Reprocessing, _skills.ReprocessingEfficiency, oreReprocessingSkill, _implants.ImplantReprocessingEfficiency);
-            return (long)Math.Truncate(quantityWithBonusYield * yieldPercent);
+            yieldPercent = ReprocessingFormula.StationOreYield(_stationBaseYield, _skills.Reprocessing, _skills.ReprocessingEfficiency, oreReprocessingSkill, _implants.ImplantReprocessingEfficiency);
         }
         else
         {
-            var yieldPercent = ReprocessingFormula.ScrapMetalYield(_stationBaseYield, _skills.ScrapmetalProcessing);
-            return (long)Math.Truncate(material.Quantity * yieldPercent);
+            yieldPercent = ReprocessingFormula.ScrapMetalYield(_stationBaseYield, _skills.ScrapmetalProcessing);
         }
+
+        return (long)Math.Truncate(baseReprocessedQuantity * yieldPercent);
     }
 }

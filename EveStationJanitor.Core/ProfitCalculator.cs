@@ -7,20 +7,22 @@ namespace EveStationJanitor.Core;
 public class ProfitCalculator
 {
     private readonly IEveMarketOrdersRepository _marketOrdersRepository;
-    private readonly StationReprocessing _stationReprocessing;
+    private readonly Station _tradeStation;
+    private readonly IReprocessingFacility _reprocessingFacility;
     private readonly decimal _salesTransactionTaxPercent;
 
-    public ProfitCalculator(IEveMarketOrdersRepository marketOrdersRepository, StationReprocessing stationReprocessing, Skills skills)
+    public ProfitCalculator(IEveMarketOrdersRepository marketOrdersRepository, Station tradeStation, IReprocessingFacility reprocessingFacility, Skills skills)
     {
         _marketOrdersRepository = marketOrdersRepository;
-        _stationReprocessing = stationReprocessing;
+        _tradeStation = tradeStation;
+        _reprocessingFacility = reprocessingFacility;
         _salesTransactionTaxPercent = TaxFormula.SalesTransactionTax(skills.Accounting);
     }
 
     public async Task<List<ItemFlipAppraisal>> FindMostProfitableOrders()
     {
-        var sellOrders = await _marketOrdersRepository.GetAggregateSellOrders(_stationReprocessing.Station);
-        var buyOrders = await _marketOrdersRepository.GetAggregateBuyOrders(_stationReprocessing.Station);
+        var sellOrders = await _marketOrdersRepository.GetAggregateSellOrders(_tradeStation);
+        var buyOrders = await _marketOrdersRepository.GetAggregateBuyOrders(_tradeStation);
         
         var market = new SimulatedMarket(buyOrders);
         var flips = new List<ItemFlipAppraisal>();
@@ -93,10 +95,10 @@ public class ProfitCalculator
 
     private ItemFlipAppraisal AppraiseFlip(SimulatedMarket market, ItemType itemToFlip, double price, long quantity)
     {
-        return AppraiseFlip(_salesTransactionTaxPercent, _stationReprocessing, market, itemToFlip, price, quantity);
+        return AppraiseFlip(_salesTransactionTaxPercent, _reprocessingFacility, market, itemToFlip, price, quantity);
     }
 
-    public static ItemFlipAppraisal AppraiseFlip(decimal salesTransactionTaxPercent, StationReprocessing reprocessing, SimulatedMarket market, ItemType itemToFlip, double price, long quantity)
+    public static ItemFlipAppraisal AppraiseFlip(decimal salesTransactionTaxPercent, IReprocessingFacility reprocessing, SimulatedMarket market, ItemType itemToFlip, double price, long quantity)
     {
         var revenue = 0m;
         
@@ -114,7 +116,7 @@ public class ProfitCalculator
         {
             // The item material quantity is the 100% ideal reprocessing yield. The actual yield is determined by the
             // station/structure reprocessing logic.
-            var reprocessedMaterialsPerPortion = reprocessing.ReprocessedMaterialQuantity(material);
+            var reprocessedMaterialsPerPortion = reprocessing.ReprocessedMaterialQuantity(itemBeingReprocessed: material.ItemType, material.Quantity);
             var materialQuantity = reprocessedMaterialsPerPortion * portions;
             
             // Simulate selling the reprocessed materials
@@ -122,7 +124,7 @@ public class ProfitCalculator
 
             {
                 // Deduct the station's tax (equipment tax)
-                materialRevenue *= (1 - reprocessing.StationReprocessingTaxPercent);
+                materialRevenue *= (1 - reprocessing.ReprocessingTaxPercent);
                 
                 // Deduct the sales transaction tax (applies when selling an item back to the market)
                 materialRevenue *= (1 - salesTransactionTaxPercent);

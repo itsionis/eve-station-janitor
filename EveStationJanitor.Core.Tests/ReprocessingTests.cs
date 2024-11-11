@@ -91,16 +91,15 @@ public class ReprocessingTests(ReprocessingTestFixture fixture) : IClassFixture<
         AssertReprocessing(skills, standings, implants, expectedTritanium, expectedMexallon);
     }
 
-    private void AssertReprocessing(Skills skills, Standings standings, CloneImplants implants, int expectedTritanium,
-        int expectedMexallon)
+    private void AssertReprocessing(Skills skills, Standings standings, CloneImplants implants, int expectedTritanium, int expectedMexallon)
     {
         var reprocessing = new StationReprocessing(new OreReprocessing(skills), fixture.JitaStation, skills, standings,
             implants);
 
         Assert.Equal(expectedTritanium,
-            reprocessing.ReprocessedMaterialQuantity(fixture.PlagioclaseMaterials[fixture.Tritanium.Id]));
+            reprocessing.ReprocessedMaterialQuantity(fixture.Plagioclase, fixture.PlagioclaseMaterials[fixture.Tritanium.Id].Quantity));
 
         Assert.Equal(expectedMexallon,
-            reprocessing.ReprocessedMaterialQuantity(fixture.PlagioclaseMaterials[fixture.Mexallon.Id]));
+            reprocessing.ReprocessedMaterialQuantity(fixture.Plagioclase, fixture.PlagioclaseMaterials[fixture.Mexallon.Id].Quantity));
     }
 }

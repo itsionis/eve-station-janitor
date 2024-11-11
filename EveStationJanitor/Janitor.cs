@@ -58,9 +58,9 @@ internal sealed class Janitor(
 
         var oreReprocessing = new OreReprocessing(skills);
         var stationReprocessing = new StationReprocessing(oreReprocessing, station, skills, standings, implants);
-
-        var profitCalculator = new ProfitCalculator(marketOrdersRepository, stationReprocessing, skills);
-        var flips = await profitCalculator.FindMostProfitableOrders();
+        var profitCalculator = new ProfitCalculator(marketOrdersRepository, station, stationReprocessing, skills);
+        
+        var flips = await profitCalculator.FindMostProfitableOrders();   
 
         WriteResultsTable(flips);
     }
