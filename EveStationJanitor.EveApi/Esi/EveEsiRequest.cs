@@ -23,12 +23,10 @@ internal sealed class EveEsiRequest<TResponse>(IEveEsiEndpointSpec specification
         if (tokenProvider != null)
         {
             var token = await tokenProvider.GetToken();
-            if (token is null)
+            if (token is not null)
             {
-                return message;
+                message.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
             }
-
-            message.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
         }
 
         if (includeEntityTag)
