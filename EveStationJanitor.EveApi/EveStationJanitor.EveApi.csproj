@@ -11,6 +11,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<InternalsVisibleTo Include="EveStationJanitor.EveApi.Tests"/>
+	</ItemGroup>
+	
+	<ItemGroup>
 		<ProjectReference Include="..\EveStationJanitor.Authentication\EveStationJanitor.Authentication.csproj" />
 	</ItemGroup>
 </Project>
