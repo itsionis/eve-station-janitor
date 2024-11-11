@@ -108,7 +108,7 @@ internal sealed class Janitor(
 
         var flipsGroupedByItem = flips
             .GroupBy(flip => flip.Item.Id)
-            .OrderByDescending(itemFlips => itemFlips.Max(g => g.Score));
+            .OrderByDescending(itemFlips => itemFlips.Max(g => g.GrossProfit));
         
         foreach (var itemFlips in flipsGroupedByItem)
         {
