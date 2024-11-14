@@ -10,7 +10,6 @@ namespace EveStationJanitor.EveApi.Esi;
 /// <typeparam name="TResponse"></typeparam>
 internal sealed class EveEsiRequest<TResponse>(IEveEsiEndpointSpec specification, IEntityTagProvider entityTagProvider, IBearerTokenProvider? tokenProvider = null)
 {
-    private static readonly Uri UriBase = new("https://esi.evetech.net/latest/", UriKind.Absolute);
     private readonly Dictionary<string, object?> _queryParameters = [];
 
     public string ETagKey => BuildUri().ToString();
@@ -44,7 +43,7 @@ internal sealed class EveEsiRequest<TResponse>(IEveEsiEndpointSpec specification
     private Uri BuildUri()
     {
         var path = specification.RelativeUrlPath;
-        var uriBuilder = UriBase.AppendPathSegment(path)
+        var uriBuilder = EveEsiRequest.UriBase.AppendPathSegment(path)
             .SetQueryParams(specification.QueryKeyValues)
             .AppendQueryParam("datasource", "tranquility");
 
@@ -60,4 +59,9 @@ internal sealed class EveEsiRequest<TResponse>(IEveEsiEndpointSpec specification
     {
         _queryParameters.Add(key, value);
     }
+}
+
+internal static class EveEsiRequest
+{
+    internal static readonly Uri UriBase = new("https://esi.evetech.net/latest/", UriKind.Absolute);
 }
