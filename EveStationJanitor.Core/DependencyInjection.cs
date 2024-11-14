@@ -3,14 +3,14 @@ using EveStationJanitor.Core.StaticData;
 using EveStationJanitor.EveApi;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using System.Net.Http.Headers;
+using EveStationJanitor.Core;
 
-namespace EveStationJanitor.Core;
+namespace Microsoft.Extensions.DependencyInjection;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddCore(this IServiceCollection services, string databaseFilePath)
+    public static IServiceCollection AddEveStationJanitorCore(this IServiceCollection services, string databaseFilePath)
     {
         services.AddHttpClient("static-data", client =>
         {
@@ -23,7 +23,7 @@ public static class DependencyInjection
             client.BaseAddress = new Uri("https://www.fuzzwork.co.uk/");
         });
 
-        services.AddEveApi();
+        services.AddEveOnlineApi();
         services.AddScoped<IEntityTagProvider, EntityTagProvider>();
         services.AddScoped<FuzzworksStaticDataDownloader>();
         services.AddScoped<IEveMarketOrdersRepository, EveMarketOrdersRepository>();

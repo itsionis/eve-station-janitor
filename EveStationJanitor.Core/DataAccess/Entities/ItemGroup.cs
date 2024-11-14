@@ -11,7 +11,7 @@ public class ItemGroup
     private List<ItemType> _itemTypes = [];
 
     [DatabaseGenerated(DatabaseGeneratedOption.None)]
-    public required int Id { get; set; }
+    public required int Id { get; init; }
 
     public required string Name { get; set; }
 
@@ -29,6 +29,9 @@ public class ItemGroupConfiguration : IEntityTypeConfiguration<ItemGroup>
         builder.ToTable("ItemGroups");
 
         builder.HasKey(nameof(ItemGroup.Id));
+
+        builder.Property(nameof(ItemGroup.Id))
+            .ValueGeneratedNever();
 
         builder.HasOne(ig => ig.Category)
             .WithMany()

@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore;
 using NodaTime;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace EveStationJanitor.Core.DataAccess.Entities;
 
@@ -9,8 +8,7 @@ public class CharacterAuthToken
 {
     private readonly List<CharacterAuthTokenScope> _scopes = [];
 
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public int Id { get; set; }
+    public int Id { get; init; }
     public required byte[] EncryptedRefreshToken { get; set; }
     public required Instant ExpiresOn { get; set; }
     
@@ -39,6 +37,9 @@ public class CharacterAuthTokenConfiguration : IEntityTypeConfiguration<Characte
 
         builder.HasKey(nameof(CharacterAuthToken.Id));
 
+        builder.Property(nameof(CharacterAuthToken.Id))
+            .ValueGeneratedOnAdd();
+        
         builder.HasOne(t => t.Character)
             .WithMany()
             .HasForeignKey(t => t.CharacterId)

@@ -16,7 +16,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\EveStationJanitor.Authentication\EveStationJanitor.Authentication.csproj" />
 		<ProjectReference Include="..\EveStationJanitor.EveApi\EveStationJanitor.EveApi.csproj" />
 	</ItemGroup>
 

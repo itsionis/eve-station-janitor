@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
 
 namespace EveStationJanitor.Core.DataAccess.Entities;
@@ -10,16 +9,15 @@ public class ItemType
 {
     private List<ItemTypeMaterial> _materials = [];
 
-    [DatabaseGenerated(DatabaseGeneratedOption.None)]
-    public required int Id { get; set; }
-    public required string Name { get; set; }
-    public required int GroupId { get; set; }
-    public ItemGroup Group { get; set; } = null!;
-    public required float Volume { get; set; }
-    public required float Mass { get; set; }
-    public int PortionSize { get; set; }
+    public required int Id { get; init; }
+    public required string Name { get; init; }
+    public required int GroupId { get; init; }
+    public ItemGroup Group { get; init; } = null!;
+    public required float Volume { get; init; }
+    public required float Mass { get; init; }
+    public int PortionSize { get; init; }
 
-    public IReadOnlyList<ItemTypeMaterial> Materials => _materials;
+    public IReadOnlyCollection<ItemTypeMaterial> Materials => _materials;
 
     public ItemTypeMaterial AddMaterial(ItemType material, int quantity)
     {
@@ -44,6 +42,9 @@ public class ItemTypeConfiguration : IEntityTypeConfiguration<ItemType>
         builder.ToTable("ItemTypes");
 
         builder.HasKey(nameof(ItemType.Id));
+
+        builder.Property(nameof(ItemType.Id))
+            .ValueGeneratedNever();
 
         builder.HasOne(it => it.Group)
             .WithMany(ig => ig.ItemTypes)

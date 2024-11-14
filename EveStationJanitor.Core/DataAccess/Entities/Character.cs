@@ -1,14 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace EveStationJanitor.Core.DataAccess.Entities;
 
 public class Character
 {
-    /// <summary>Internal ID to this application</summary>
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public int Id { get; private set; }
+    public int Id { get; init; }
     public required string Name { get; set; }
     public required int EveCharacterId { get; set; }
     public required string CharacterOwnerHash { get; set; }
@@ -25,6 +22,9 @@ public class CharacterConfiguration : IEntityTypeConfiguration<Character>
 
         builder.HasKey(nameof(Character.Id));
 
+        builder.Property(nameof(Character.Id))
+            .ValueGeneratedOnAdd();
+        
         builder.HasIndex(c => c.EveCharacterId)
             .IsUnique();
     }

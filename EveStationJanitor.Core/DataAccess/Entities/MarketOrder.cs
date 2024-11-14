@@ -10,39 +10,37 @@ namespace EveStationJanitor.Core.DataAccess.Entities;
 [DebuggerDisplay("{VolumeRemaining} {ItemType?.Name} @ {Price}")]
 public class MarketOrder
 {
-    [DatabaseGenerated(DatabaseGeneratedOption.None)]
-    public required long OrderId { get; set; }
+    public required long OrderId { get; init; }
 
-    public required Duration Duration { get; set; }
+    public required Duration Duration { get; init; }
 
-    public required bool IsBuyOrder { get; set; }
+    public required bool IsBuyOrder { get; init; }
 
-    public required Instant Issued { get; set; }
+    public required Instant Issued { get; init; }
 
-    [NotMapped]
-    public Instant Expires => Issued.Plus(Duration);
+    [NotMapped] public Instant Expires => Issued.Plus(Duration);
 
-    public Station Station { get; set; } = null!;
+    public Station Station { get; init; } = null!;
 
-    public required long LocationId { get; set; }
+    public required long LocationId { get; init; }
 
-    public required int MinVolume { get; set; }
+    public required int MinVolume { get; init; }
 
-    public required double Price { get; set; }
+    public required double Price { get; init; }
 
-    public required OrderRange Range { get; set; }
+    public required OrderRange Range { get; init; }
 
-    public required int SystemId { get; set; }
+    public required int SystemId { get; init; }
 
-    public MapSolarSystem SolarSystem { get; set; } = null!;
+    public MapSolarSystem SolarSystem { get; init; } = null!;
 
-    public required int TypeId { get; set; }
+    public required int TypeId { get; init; }
 
-    public ItemType ItemType { get; set; } = null!;
+    public ItemType ItemType { get; init; } = null!;
 
-    public required long VolumeRemaining { get; set; }
+    public required long VolumeRemaining { get; init; }
 
-    public required long VolumeTotal { get; set; }
+    public required long VolumeTotal { get; init; }
 
     public static OrderRange ParseOrderRange(string range)
     {
@@ -88,6 +86,9 @@ public class MarketOrderConfiguration : IEntityTypeConfiguration<MarketOrder>
         builder.ToTable("MarketOrders");
 
         builder.HasKey(nameof(MarketOrder.OrderId));
+
+        builder.Property(nameof(MarketOrder.OrderId))
+            .ValueGeneratedNever();
 
         builder.HasOne(order => order.ItemType)
             .WithMany()

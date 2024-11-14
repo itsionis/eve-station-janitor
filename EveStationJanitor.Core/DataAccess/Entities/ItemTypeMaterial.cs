@@ -6,17 +6,15 @@ namespace EveStationJanitor.Core.DataAccess.Entities;
 
 public class ItemTypeMaterial
 {
-    [DatabaseGenerated(DatabaseGeneratedOption.None)]
-    public required int ItemTypeId { get; set; }
+    public required int ItemTypeId { get; init; }
 
-    [DatabaseGenerated(DatabaseGeneratedOption.None)]
-    public required int MaterialItemTypeId { get; set; }
+    public required int MaterialItemTypeId { get; init; }
 
-    public required int Quantity { get; set; }
+    public required int Quantity { get; init; }
 
-    public required ItemType ItemType { get; set; }
+    public required ItemType ItemType { get; init; }
 
-    public required ItemType MaterialType { get; set; }
+    public required ItemType MaterialType { get; init; }
 }
 
 public class InventoryTypeMaterialConfiguration : IEntityTypeConfiguration<ItemTypeMaterial>
@@ -26,6 +24,12 @@ public class InventoryTypeMaterialConfiguration : IEntityTypeConfiguration<ItemT
         builder.ToTable("ItemTypeMaterials");
 
         builder.HasKey(tm => new { tm.ItemTypeId, tm.MaterialItemTypeId });
+
+        builder.Property(nameof(ItemTypeMaterial.ItemTypeId))
+            .ValueGeneratedNever();
+
+        builder.Property(nameof(ItemTypeMaterial.MaterialItemTypeId))
+            .ValueGeneratedNever();
 
         builder.HasOne(tm => tm.ItemType)
             .WithMany(it => it.Materials)

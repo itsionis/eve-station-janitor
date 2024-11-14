@@ -10,16 +10,15 @@ public class MapSolarSystem
 {
     private readonly List<Station> _stations = [];
 
-    [DatabaseGenerated(DatabaseGeneratedOption.None)]
-    public required int Id { get; set; }
+    public required int Id { get; init; }
 
-    public required string Name { get; set; }
+    public required string Name { get; init; }
 
-    public required int RegionId { get; set; }
+    public required int RegionId { get; init; }
 
-    public required MapRegion Region { get; set; }
+    public required MapRegion Region { get; init; }
 
-    public List<Station> Stations => _stations;
+    public IReadOnlyCollection<Station> Stations => _stations;
 }
 
 public class MapSolarSystemConfiguration : IEntityTypeConfiguration<MapSolarSystem>
@@ -29,6 +28,9 @@ public class MapSolarSystemConfiguration : IEntityTypeConfiguration<MapSolarSyst
         builder.ToTable("MapSolarSystems");
 
         builder.HasKey(nameof(MapSolarSystem.Id));
+
+        builder.Property(nameof(MapSolarSystem.Id))
+            .ValueGeneratedNever();
 
         builder.HasMany(system => system.Stations)
             .WithOne(station => station.SolarSystem)

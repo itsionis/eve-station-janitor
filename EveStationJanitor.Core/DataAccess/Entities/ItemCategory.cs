@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
 
 namespace EveStationJanitor.Core.DataAccess.Entities;
@@ -8,10 +7,9 @@ namespace EveStationJanitor.Core.DataAccess.Entities;
 [DebuggerDisplay("{Name}")]
 public class ItemCategory
 {
-    [DatabaseGenerated(DatabaseGeneratedOption.None)]
-    public required int Id { get; set; }
+    public required int Id { get; init; }
 
-    public required string Name { get; set; }
+    public required string Name { get; init; }
 }
 
 public class ItemCategoryConfiguration : IEntityTypeConfiguration<ItemCategory>
@@ -21,5 +19,8 @@ public class ItemCategoryConfiguration : IEntityTypeConfiguration<ItemCategory>
         builder.ToTable("ItemCategories");
 
         builder.HasKey(nameof(ItemCategory.Id));
+
+        builder.Property(nameof(ItemCategory.Id))
+            .ValueGeneratedNever();
     }
 }

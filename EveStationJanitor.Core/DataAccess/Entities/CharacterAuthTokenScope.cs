@@ -5,11 +5,10 @@ namespace EveStationJanitor.Core.DataAccess.Entities;
 
 public class CharacterAuthTokenScope
 {
-    public int Id { get; set; }
-    public required string Scope { get; set; }
-
-    public required int CharacterAuthTokenId { get; set; }
-    public CharacterAuthToken CharacterAuthToken { get; set; } = null!;
+    public int Id { get; init; }
+    public required string Scope { get; init; }
+    public required int CharacterAuthTokenId { get; init; }
+    public CharacterAuthToken CharacterAuthToken { get; init; } = null!;
 }
 
 public class AuthTokenScopeConfiguration : IEntityTypeConfiguration<CharacterAuthTokenScope>
@@ -20,6 +19,9 @@ public class AuthTokenScopeConfiguration : IEntityTypeConfiguration<CharacterAut
 
         builder.HasKey(nameof(CharacterAuthTokenScope.Id));
 
+        builder.Property(nameof(CharacterAuthTokenScope.Id))
+            .ValueGeneratedOnAdd();
+        
         builder.HasOne(s => s.CharacterAuthToken)
             .WithMany(t => t.Scopes)
             .HasForeignKey(s => s.CharacterAuthTokenId);

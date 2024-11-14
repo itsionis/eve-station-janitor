@@ -1,13 +1,13 @@
 ﻿using EveStationJanitor.EveApi.Esi;
-using Microsoft.Extensions.DependencyInjection;
 using System.Net.Http.Headers;
 using System.Text.Json;
+using EveStationJanitor.EveApi;
 
-namespace EveStationJanitor.EveApi;
+namespace Microsoft.Extensions.DependencyInjection;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddEveApi(this IServiceCollection services)
+    public static IServiceCollection AddEveOnlineApi(this IServiceCollection services)
     {
         services.AddHttpClient("eve-esi", client =>
         {
@@ -28,6 +28,7 @@ public static class DependencyInjection
         services.AddScoped<IAuthenticatedEveApiProvider, AuthenticatedEveApiProvider>();
         services.AddScoped<EveEsiClient>();
         services.AddScoped<EveEsiRequestFactory>();
+        
         return services;
     }
 }

@@ -1,15 +1,15 @@
 ﻿using EveStationJanitor.Authentication.Validation;
-using Microsoft.Extensions.DependencyInjection;
 using NodaTime;
 using NodaTime.Serialization.SystemTextJson;
 using System.Net.Http.Headers;
 using System.Text.Json;
+using EveStationJanitor.Authentication;
 
-namespace EveStationJanitor.Authentication;
+namespace Microsoft.Extensions.DependencyInjection;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddAuth(this IServiceCollection services, string tokenFilePath)
+    public static IServiceCollection AddEveOnlineAuthentication(this IServiceCollection services)
     {
         services.AddOptions<EveSsoConfiguration>()
             .BindConfiguration(EveSsoConfiguration.ConfigurationSectionName)
@@ -31,6 +31,7 @@ public static class DependencyInjection
         {
             TypeInfoResolver = JsonSourceGeneratorContext.Default
         };
+        
         jsonOptions.ConfigureForNodaTime(DateTimeZoneProviders.Tzdb);
         services.AddKeyedSingleton(JsonSourceGeneratorContext.ServiceKey, jsonOptions);
 
