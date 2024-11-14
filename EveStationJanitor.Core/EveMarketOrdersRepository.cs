@@ -26,11 +26,7 @@ internal class EveMarketOrdersRepository(AppDbContext context, IPublicEveApi eve
 
         return otherwise.Match<OneOf<Success, Error<string>>>(
             error => error,
-            notModified =>
-            {
-                // Sales data is not modified, what we have saved is up-to-date. Continue.
-                return new Success();
-            });
+            notModified => new Success());
     }
 
     public async Task<List<AggregatedMarketOrder>> GetAggregateSellOrders(Station station)

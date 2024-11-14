@@ -26,13 +26,11 @@ internal class EveCharacterData(AppDbContext context, IAuthenticatedEveApiProvid
     {
         var characterApi = eveApiProvider.CreateCharacterApi(characterId);
         var apiSkillsResult = await characterApi.GetCharacterSkills(characterId);
-        return apiSkillsResult.Match<SkillsResult>(apiSkills =>
-        {
-            return new Skills(apiSkills);
-
-        },
-        error => error,
-        notModified => new Error<string>("Not modified."));
+        
+        return apiSkillsResult.Match<SkillsResult>(
+            apiSkills => new Skills(apiSkills),
+            error => error,
+            notModified => new Error<string>("Not modified."));
     }
 
     public async Task<StandingsResult> GetStandings(Skills skills)
