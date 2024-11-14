@@ -240,7 +240,7 @@ internal sealed class AuthenticationClient : IAuthenticationClient
 
     private static void RespondToCallback(HttpListenerContext context)
     {
-        var response = "Authentication complete! You can close this window and return to the application.";
+        const string response = "Authentication complete! You can close this window and return to the application.";
         var responseBuffer = Encoding.UTF8.GetBytes(response);
 
         context.Response.ContentType = "text/plain";

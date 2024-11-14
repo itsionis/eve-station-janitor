@@ -69,7 +69,7 @@ internal sealed class EveEsiClient
     public async Task<GetPagedCollectionResult<TResponse>> GetPagedCollection<TResponse>(EveEsiPagedRequest<TResponse> esiRequest)
     {
         var allPages = new List<TResponse>();
-        var currentPage = 1;
+        const int currentPage = 1;
 
         var firstResult = await GetCollectionPage(esiRequest, currentPage, includeEntityTag: true);
 
