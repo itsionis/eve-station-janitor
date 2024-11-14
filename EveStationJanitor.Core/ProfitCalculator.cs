@@ -19,7 +19,7 @@ public class ProfitCalculator
         _salesTransactionTaxPercent = TaxFormula.SalesTransactionTax(skills.Accounting);
     }
 
-    public async Task<List<ItemFlipAppraisal>> FindMostProfitableOrders()
+    public async Task<List<ItemFlipAppraisal>> FindMostProfitableOrders(Isk minimumProfit = 0, int maxFlips = 200)
     {
         var sellOrders = await _marketOrdersRepository.GetAggregateSellOrders(_tradeStation);
         var buyOrders = await _marketOrdersRepository.GetAggregateBuyOrders(_tradeStation);
@@ -27,7 +27,7 @@ public class ProfitCalculator
         var market = new SimulatedMarket(buyOrders);
         var flips = new List<ItemFlipAppraisal>();
 
-        while (flips.Count < 250)
+        while (flips.Count < maxFlips)
         {
             var mostProfitable = FindMostProfitableOrder(market, sellOrders);
             if (mostProfitable is null)
@@ -38,7 +38,7 @@ public class ProfitCalculator
             var (order, flip) = mostProfitable.Value;
 
             // The most profitable order is not profitable at all! Break out of the loop and present what we've found.
-            if (flip.GrossProfit < 0)
+            if (flip.GrossProfit < minimumProfit)
             {
                 break;
             }

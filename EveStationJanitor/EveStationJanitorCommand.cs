@@ -5,7 +5,7 @@ namespace EveStationJanitor;
 
 public class EveStationJanitorCommand : RootCommand
 {
-    public EveStationJanitorCommand(Func<string?, TradeHubStation?, Task> handler)
+    public EveStationJanitorCommand(Func<string?, TradeHubStation?, int, Task> handler)
     {
         var optionCharacter = new Option<string?>("--character");
         AddOption(optionCharacter);
@@ -13,8 +13,17 @@ public class EveStationJanitorCommand : RootCommand
         var optionTradeHubSystem = new OptionTradeHubSystem("--trade-hub");
         AddOption(optionTradeHubSystem);
 
-        this.SetHandler(handler, optionCharacter, optionTradeHubSystem);
+        var optionMinimumProfit = new OptionMinimumProfit("--min-profit");
+        optionMinimumProfit.SetDefaultValue(0);
+        AddOption(optionMinimumProfit);
+
+        this.SetHandler(handler, optionCharacter, optionTradeHubSystem, optionMinimumProfit);
     }
+}
+
+public class OptionMinimumProfit(string name) : Option<int>(name)
+{
+    public override string Description => "Ignore item flips which have a projected profit less than this amount in ISK";
 }
 
 public class OptionTradeHubSystem(string name)

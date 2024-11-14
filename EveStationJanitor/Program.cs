@@ -25,18 +25,18 @@ builder.Services.AddScoped<App>();
 
 var host = builder.Build();
 
-var command = new EveStationJanitorCommand(async (character, tradeHubSystem) =>
+var command = new EveStationJanitorCommand(async (character, tradeHubSystem, minimumProfit) =>
 {
     using var scope = host.Services.CreateScope();
     var app = scope.ServiceProvider.GetRequiredService<App>();
-    await app.Run(character, tradeHubSystem);
+    await app.Run(character, tradeHubSystem, minimumProfit);
 });
 
 return await command.InvokeAsync(args);
 
 internal class App(AppDbContext context, Janitor janitor, FuzzworksStaticDataDownloader staticDataLoader)
 {
-    public async Task Run(string? characterChoice = null, TradeHubStation? tradeHubStationChoice = null)
+    public async Task Run(string? characterChoice = null, TradeHubStation? tradeHubStationChoice = null, int minimumProfit = 0)
     {
         Console.WriteLine("Initialising database...");
         await context.Database.MigrateAsync();
@@ -44,6 +44,6 @@ internal class App(AppDbContext context, Janitor janitor, FuzzworksStaticDataDow
         Console.WriteLine("Loading static data...");
         await staticDataLoader.Run();
 
-        await janitor.Run(characterChoice, tradeHubStationChoice);
+        await janitor.Run(characterChoice, tradeHubStationChoice, minimumProfit);
     }
 }

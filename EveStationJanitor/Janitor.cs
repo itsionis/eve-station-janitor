@@ -14,7 +14,7 @@ internal sealed class Janitor(
     IEveMarketOrdersRepository marketOrdersRepository,
     IAuthenticationDataProvider authenticationDataProvider)
 {
-    public async Task Run(string? characterName = null, TradeHubStation? tradeHubStationChoice = null)
+    public async Task Run(string? characterName = null, TradeHubStation? tradeHubStationChoice = null, int minimumProfit = 0)
     {
         var characterId = await GetCharacterId(characterName);
         if (characterId is null)
@@ -60,7 +60,7 @@ internal sealed class Janitor(
         var stationReprocessing = new StationReprocessing(oreReprocessing, station, skills, standings, implants);
         var profitCalculator = new ProfitCalculator(marketOrdersRepository, station, stationReprocessing, skills);
         
-        var flips = await profitCalculator.FindMostProfitableOrders();   
+        var flips = await profitCalculator.FindMostProfitableOrders(minimumProfit);   
 
         WriteResultsTable(flips);
     }
