@@ -115,9 +115,9 @@ internal class EveMarketOrdersRepository(AppDbContext context, IPublicEveApi eve
         var ordersToRemove = context.MarketOrders.Where(order => order.LocationId == station.Id);
         await ordersToRemove.ExecuteDeleteAsync();
 
-        const int MarketOrderSaveBatchSize = 50_000;
+        const int marketOrderSaveBatchSize = 50_000;
         
-        foreach (var batch in orders.Chunk(MarketOrderSaveBatchSize))
+        foreach (var batch in orders.Chunk(marketOrderSaveBatchSize))
         {
             await context.MarketOrders.AddRangeAsync(batch);
             await context.SaveChangesAsync();
