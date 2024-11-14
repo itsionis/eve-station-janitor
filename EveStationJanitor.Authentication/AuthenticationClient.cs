@@ -256,7 +256,7 @@ internal sealed class AuthenticationClient : IAuthenticationClient
 
     private static (string codeVerifier, string codeChallenge) GenerateCodeChallenge()
     {
-        byte[] randomBytes = new byte[32];
+        var randomBytes = new byte[32];
         using (var random = RandomNumberGenerator.Create())
         {
             random.GetBytes(randomBytes);
@@ -269,7 +269,7 @@ internal sealed class AuthenticationClient : IAuthenticationClient
 
         // Generate SHA-256 hash of the code_verifier
         var challengeBytes = SHA256.HashData(Encoding.UTF8.GetBytes(codeVerifier));
-        string codeChallenge = Convert.ToBase64String(challengeBytes)
+        var codeChallenge = Convert.ToBase64String(challengeBytes)
             .TrimEnd('=')
             .Replace('+', '-')
             .Replace('/', '_'); // Base64 URL encoding
