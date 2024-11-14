@@ -85,7 +85,7 @@ internal sealed class AuthenticationClient : IAuthenticationClient
 
             if (completedTask == waitForAuthCallback)
             {
-                cts.Cancel(); // Cancel the timeout task, it's no longer required
+                await cts.CancelAsync(); // Cancel the timeout task, it's no longer required
 
                 // Keep the server alive during handling of callback in case the callback needs to write
                 // data to the response stream.
