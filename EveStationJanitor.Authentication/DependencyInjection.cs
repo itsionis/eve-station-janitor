@@ -27,7 +27,7 @@ public static class DependencyInjection
             client.DefaultRequestHeaders.Host = "login.eveonline.com";
         });
 
-        var jsonOptions = new JsonSerializerOptions()
+        var jsonOptions = new JsonSerializerOptions
         {
             TypeInfoResolver = JsonSourceGeneratorContext.Default
         };

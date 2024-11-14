@@ -157,7 +157,7 @@ internal sealed class AuthenticationClient : IAuthenticationClient
     // Step 4: Exchange authorization code for access token
     public async Task<EveSsoTokens?> ExchangeCodeForTokensAsync(string authorizationCode, string codeVerifier)
     {
-        var requestContent = new FormUrlEncodedContent(new Dictionary<string, string>()
+        var requestContent = new FormUrlEncodedContent(new Dictionary<string, string>
         {
             {"grant_type", "authorization_code" },
             {"code", authorizationCode },
@@ -194,7 +194,7 @@ internal sealed class AuthenticationClient : IAuthenticationClient
 
     public async Task<(AuthorizedToken, EveSsoCharacterInfo)?> Refresh(AuthorizedToken token)
     {
-        var requestContent = new FormUrlEncodedContent(new Dictionary<string, string>()
+        var requestContent = new FormUrlEncodedContent(new Dictionary<string, string>
         {
             {"grant_type", "refresh_token" },
             {"refresh_token", token.RefreshToken },
