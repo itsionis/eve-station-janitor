@@ -103,9 +103,6 @@ internal sealed class Janitor(
         table.AddColumn("Margin");
         table.Columns[5].RightAligned();
 
-        table.AddColumn("Score");
-        table.Columns[6].RightAligned();
-
         var flipsGroupedByItem = flips
             .GroupBy(flip => flip.Item.Id)
             .OrderByDescending(itemFlips => itemFlips.Max(g => g.GrossProfit));
@@ -120,8 +117,7 @@ internal sealed class Janitor(
                     (flip.CostOfGoodsSold / flip.QuantityToBuy).ToString("N2", CultureInfo.CurrentCulture),
                     flip.CostOfGoodsSold.ToString("N2", CultureInfo.CurrentCulture),
                     flip.GrossProfit.ToString("N2", CultureInfo.CurrentCulture),
-                    flip.ProfitMargin.ToString("P2", CultureInfo.CurrentCulture),
-                    flip.Score.ToString("N2", CultureInfo.CurrentCulture));
+                    flip.ProfitMargin.ToString("P2", CultureInfo.CurrentCulture));
             }
         }
         
