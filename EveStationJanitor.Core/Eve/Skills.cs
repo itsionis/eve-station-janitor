@@ -20,14 +20,7 @@ public class Skills
 
     private int GetSkillLevel(int skillId)
     {
-        if (_skillLevels.TryGetValue(skillId, out var level))
-        {
-            return level;
-        }
-        else
-        {
-            return 0;
-        }
+        return _skillLevels.TryGetValue(skillId, out var level) ? level : 0;
     }
 
     // Trade
