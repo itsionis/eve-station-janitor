@@ -1,6 +1,7 @@
 ﻿namespace EveStationJanitor.Core.Eve;
 
 using CorporationId = int;
+using SkillLevel = int;
 using Standing = double;
 
 public class Standings(Skills skills)
@@ -36,7 +37,7 @@ public class Standings(Skills skills)
             : 0.0;
     }
 
-    private static Standing CalculateEffectiveStanding(Standing unmodifiedStanding, int skillLevel, double modifier)
+    private static Standing CalculateEffectiveStanding(Standing unmodifiedStanding, SkillLevel skillLevel, double modifier)
     {
         const Standing maxStanding = 10;
         
