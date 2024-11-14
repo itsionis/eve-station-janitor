@@ -106,7 +106,7 @@ internal sealed class AuthenticationClient : IAuthenticationClient
         return await handleAuthorizationCode(authorizationCode, codeVerifier);
     }
 
-    private string? HandleAuthCallback(HttpListenerContext context)
+    private string HandleAuthCallback(HttpListenerContext context)
     {
         // Authorization code needs extracting from the response's query parameters
         var queryString = context.Request.Url?.Query;
