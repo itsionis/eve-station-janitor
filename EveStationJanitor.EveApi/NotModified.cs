@@ -1,3 +1,3 @@
 ﻿namespace EveStationJanitor.EveApi;
 
-public struct NotModified { }
+public struct NotModified;
