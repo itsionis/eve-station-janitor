@@ -6,7 +6,7 @@ namespace EveStationJanitor.Core;
 
 internal class EntityTagProvider : IEntityTagProvider
 {
-    private readonly object _lock = new();
+    private readonly Lock _lock = new();
 
     private readonly AppDbContext _context;
 
