@@ -14,10 +14,10 @@ public class ApiItemType
     public required int GroupId { get; set; }
 
     [JsonPropertyName("volume")]
-    public float Volume { get; set; }
+    public decimal Volume { get; set; }
 
     [JsonPropertyName("mass")]
-    public float Mass { get; set; }
+    public decimal Mass { get; set; }
 
     [JsonPropertyName("portion_size")]
     public int PortionSize { get; set; }

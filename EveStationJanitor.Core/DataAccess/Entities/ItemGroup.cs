@@ -33,6 +33,10 @@ public class ItemGroupConfiguration : IEntityTypeConfiguration<ItemGroup>
         builder.Property(nameof(ItemGroup.Id))
             .ValueGeneratedNever();
 
+        // Longest item group as of 2024/11/14 is 73 "Structure Combat Rig L - Point Defense Battery Application and Projection"
+        builder.Property(nameof(ItemGroup.Name))
+            .HasMaxLength(128);
+        
         builder.HasOne(ig => ig.Category)
             .WithMany()
             .HasForeignKey(ig => ig.CategoryId);

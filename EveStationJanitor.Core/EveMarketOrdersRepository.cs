@@ -174,9 +174,7 @@ internal class EveMarketOrdersRepository(AppDbContext context, IPublicEveApi eve
             Id = item.TypeId,
             Name = item.Name,
             GroupId = item.GroupId,
-            Mass = item.Mass,
             PortionSize = item.PortionSize,
-            Volume = item.Volume
         };
 
         context.ItemTypes.Add(newItem);

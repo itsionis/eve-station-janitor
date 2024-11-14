@@ -13,8 +13,6 @@ public class ItemType
     public required string Name { get; init; }
     public required int GroupId { get; init; }
     public ItemGroup Group { get; init; } = null!;
-    public required float Volume { get; init; }
-    public required float Mass { get; init; }
     public int PortionSize { get; init; }
 
     public IReadOnlyCollection<ItemTypeMaterial> Materials => _materials;
@@ -45,6 +43,10 @@ public class ItemTypeConfiguration : IEntityTypeConfiguration<ItemType>
 
         builder.Property(nameof(ItemType.Id))
             .ValueGeneratedNever();
+
+        // Longest item name as of 2024/11/14 is 99 characters "53043_Male_Makeup_BodyAugmentations_BodyAugmentation_M01_Types_BodyAugmentationM01_YellowDesign.png"
+        builder.Property(nameof(ItemType.Name))
+            .HasMaxLength(256);
 
         builder.HasOne(it => it.Group)
             .WithMany(ig => ig.ItemTypes)

@@ -11,13 +11,13 @@ public class Station
 
     public required int SolarSystemId { get; init; }
 
-    public required int OwnerCorporationId { get; init; }
+    public required CorporationId OwnerCorporationId { get; init; }
 
     public required string Name { get; init; }
 
-    public required double ReprocessingEfficiency { get; init; }
+    public required YieldPercent ReprocessingEfficiency { get; init; }
 
-    public required double ReprocessingTax { get; init; }
+    public required Tax ReprocessingTax { get; init; }
 }
 
 public class StationConfiguration : IEntityTypeConfiguration<Station>
@@ -31,6 +31,10 @@ public class StationConfiguration : IEntityTypeConfiguration<Station>
         builder.Property(nameof(Station.Id))
             .ValueGeneratedNever();
 
+        // Longest station name as of 2024/11/24 is 78 characters "Kor-Azor Prime IV (Eclipticum) - Moon Griklaeum - Ishukone Corporation Factory"
+        builder.Property(nameof(Station.Name))
+            .HasMaxLength(256);
+        
         builder.HasOne(station => station.SolarSystem)
             .WithMany(system => system.Stations)
             .HasForeignKey(station => station.SolarSystemId);

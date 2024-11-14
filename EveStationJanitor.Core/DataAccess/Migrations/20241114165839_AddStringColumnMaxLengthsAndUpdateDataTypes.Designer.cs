@@ -3,6 +3,7 @@ using System;
 using EveStationJanitor.Core.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EveStationJanitor.Core.DataAccess.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241114165839_AddStringColumnMaxLengthsAndUpdateDataTypes")]
+    partial class AddStringColumnMaxLengthsAndUpdateDataTypes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.11");
@@ -190,6 +193,10 @@ namespace EveStationJanitor.Core.DataAccess.Migrations
                         .HasColumnType("INTEGER")
                         .HasColumnName("group_id");
 
+                    b.Property<decimal>("Mass")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("mass");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(256)
@@ -199,6 +206,10 @@ namespace EveStationJanitor.Core.DataAccess.Migrations
                     b.Property<int>("PortionSize")
                         .HasColumnType("INTEGER")
                         .HasColumnName("portion_size");
+
+                    b.Property<decimal>("Volume")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("volume");
 
                     b.HasKey("Id")
                         .HasName("pk_item_types");

@@ -1,9 +1,5 @@
 ﻿namespace EveStationJanitor.Core.Eve;
 
-using CorporationId = int;
-using SkillLevel = int;
-using Standing = double;
-
 public class Standings(Skills skills)
 {
     private readonly Dictionary<CorporationId, (Standing Base, Standing Effective)> _standings = [];

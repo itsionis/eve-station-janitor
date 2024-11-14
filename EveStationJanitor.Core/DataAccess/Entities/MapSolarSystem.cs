@@ -31,6 +31,10 @@ public class MapSolarSystemConfiguration : IEntityTypeConfiguration<MapSolarSyst
         builder.Property(nameof(MapSolarSystem.Id))
             .ValueGeneratedNever();
 
+        // Longest system name as of 2024/11/14 is 17 characters "Tash-Murkon Prime"
+        builder.Property(nameof(MapSolarSystem.Name))
+            .HasMaxLength(32);
+
         builder.HasMany(system => system.Stations)
             .WithOne(station => station.SolarSystem)
             .HasForeignKey(station => station.SolarSystemId);

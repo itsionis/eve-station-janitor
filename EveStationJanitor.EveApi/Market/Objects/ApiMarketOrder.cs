@@ -23,7 +23,7 @@ public class ApiMarketOrder
     public long OrderId { get; set; }
 
     [JsonPropertyName("price")]
-    public double Price { get; set; }
+    public decimal Price { get; set; }
 
     [JsonPropertyName("range")]
     public string Range { get; set; } = string.Empty;

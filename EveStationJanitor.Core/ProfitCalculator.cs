@@ -93,12 +93,12 @@ public class ProfitCalculator
         return best;
     }
 
-    private ItemFlipAppraisal AppraiseFlip(SimulatedMarket market, ItemType itemToFlip, double price, long quantity)
+    private ItemFlipAppraisal AppraiseFlip(SimulatedMarket market, ItemType itemToFlip, Isk price, SalesVolume quantity)
     {
         return AppraiseFlip(_salesTransactionTaxPercent, _reprocessingFacility, market, itemToFlip, price, quantity);
     }
 
-    public static ItemFlipAppraisal AppraiseFlip(decimal salesTransactionTaxPercent, IReprocessingFacility reprocessing, SimulatedMarket market, ItemType itemToFlip, double price, long quantity)
+    public static ItemFlipAppraisal AppraiseFlip(decimal salesTransactionTaxPercent, IReprocessingFacility reprocessing, SimulatedMarket market, ItemType itemToFlip, Isk price, SalesVolume quantity)
     {
         var revenue = 0m;
         

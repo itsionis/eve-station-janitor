@@ -12,8 +12,8 @@ public class CharacterAuthToken
     public required byte[] EncryptedRefreshToken { get; set; }
     public required Instant ExpiresOn { get; set; }
     
-    public required int CharacterId { get; set; }
-    public Character Character { get; set; } = null!;
+    public required int CharacterId { get; init; }
+    public Character Character { get; init; } = null!;
 
     public IReadOnlyCollection<CharacterAuthTokenScope> Scopes => _scopes;
 

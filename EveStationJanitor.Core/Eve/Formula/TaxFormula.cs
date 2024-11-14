@@ -9,13 +9,13 @@ public static class TaxFormula
     /// <remarks>
     /// Calculation derived from https://wiki.eveuniversity.org/Tax#Equipment_tax
     /// </remarks>
-    public static decimal StationReprocessingEquipmentTax(double baseReprocessingTax, double stationOwnerStandings)
+    public static Tax StationReprocessingEquipmentTax(Tax baseReprocessingTax, Standing stationOwnerStandings)
     {
         // Benefits cap at 6.67 and bottom out at 0.
         var scaledStanding = Math.Clamp(stationOwnerStandings, 0d, 6.67d);
-        var scalingFactor = baseReprocessingTax / 6.67d;
-        var taxReduction = (decimal)(scaledStanding * scalingFactor);
-        return (decimal)baseReprocessingTax - taxReduction;
+        var scalingFactor = baseReprocessingTax / 6.67m;
+        var taxReduction = (Tax)scaledStanding * scalingFactor;
+        return baseReprocessingTax - taxReduction;
     }
 
     /// <summary>
@@ -25,9 +25,9 @@ public static class TaxFormula
     /// <remarks>
     /// Calculation derived from <see href="https://wiki.eveuniversity.org/Trading#Sales_tax"/>
     /// </remarks>
-    public static decimal SalesTransactionTax(int accountingSkill)
+    public static Tax SalesTransactionTax(SkillLevel accountingSkill)
     {
-        const decimal baseTax = 0.045m;
+        const Tax baseTax = 0.045m;
 
         accountingSkill = Math.Clamp(accountingSkill, 0, 5);
         return baseTax * (1 - (0.11m * accountingSkill));

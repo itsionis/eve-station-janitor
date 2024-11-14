@@ -22,6 +22,9 @@ public class CharacterAuthTokenScopeConfiguration : IEntityTypeConfiguration<Cha
         builder.Property(nameof(CharacterAuthTokenScope.Id))
             .ValueGeneratedOnAdd();
         
+        builder.Property(nameof(CharacterAuthTokenScope.Scope))
+            .HasMaxLength(128);
+        
         builder.HasOne(s => s.CharacterAuthToken)
             .WithMany(t => t.Scopes)
             .HasForeignKey(s => s.CharacterAuthTokenId);

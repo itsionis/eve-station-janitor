@@ -22,26 +22,26 @@ public class ReprocessingTestFixture
             Id = 60003760,
             Name = "Jita IV - Moon 4 - Caldari Navy Assembly Plant",
             OwnerCorporationId = 1000035,
-            ReprocessingEfficiency = 0.5,
-            ReprocessingTax = 0.05,
+            ReprocessingEfficiency = 0.5m,
+            ReprocessingTax = 0.05m,
             SolarSystemId = 30000142
         };
         
         // Implants
-        ZainouBeancounterReprocessingRx801 = new ItemType { Id = 27175, Name = "Zainou 'Beancounter' Reprocessing RX-801", Volume = 1, Mass = 0, PortionSize = 1, GroupId = groupCyberResourceProcessing.Id, Group = groupCyberResourceProcessing };
-        ZainouBeancounterReprocessingRx802 = new ItemType { Id = 27169, Name = "Zainou 'Beancounter' Reprocessing RX-802", Volume = 1, Mass = 0, PortionSize = 1, GroupId = groupCyberResourceProcessing.Id, Group = groupCyberResourceProcessing };
-        ZainouBeancounterReprocessingRx804 = new ItemType { Id = 27174, Name = "Zainou 'Beancounter' Reprocessing RX-804", Volume = 1, Mass = 0, PortionSize = 1, GroupId = groupCyberResourceProcessing.Id, Group = groupCyberResourceProcessing };
+        ZainouBeancounterReprocessingRx801 = new ItemType { Id = 27175, Name = "Zainou 'Beancounter' Reprocessing RX-801", PortionSize = 1, GroupId = groupCyberResourceProcessing.Id, Group = groupCyberResourceProcessing };
+        ZainouBeancounterReprocessingRx802 = new ItemType { Id = 27169, Name = "Zainou 'Beancounter' Reprocessing RX-802", PortionSize = 1, GroupId = groupCyberResourceProcessing.Id, Group = groupCyberResourceProcessing };
+        ZainouBeancounterReprocessingRx804 = new ItemType { Id = 27174, Name = "Zainou 'Beancounter' Reprocessing RX-804",  PortionSize = 1, GroupId = groupCyberResourceProcessing.Id, Group = groupCyberResourceProcessing };
 
         // Minerals
-        Tritanium = new ItemType { Id = 34, GroupId = 18, Group = groupMineral, Name = "Tritanium", Volume = 0.01f, Mass = 0 };
-        Mexallon = new ItemType { Id = 36, GroupId = 18, Group = groupMineral, Name = "Mexallon", Volume = 0.01f, Mass = 0 };
-        Isogen = new ItemType { Id = 37, GroupId = 18, Group = groupMineral, Name = "Isogen", Volume = 0.01f, Mass = 0 };
-        Nocxium = new ItemType { Id = 38, GroupId = 18, Group = groupMineral, Name = "Nocxium", Volume = 0.01f, Mass = 0 };
-        Megacyte = new ItemType { Id = 40, GroupId = 18, Group = groupMineral, Name = "Megacyte", Volume = 0.01f, Mass = 0 };
+        Tritanium = new ItemType { Id = 34, GroupId = 18, Group = groupMineral, Name = "Tritanium" };
+        Mexallon = new ItemType { Id = 36, GroupId = 18, Group = groupMineral, Name = "Mexallon" };
+        Isogen = new ItemType { Id = 37, GroupId = 18, Group = groupMineral, Name = "Isogen" };
+        Nocxium = new ItemType { Id = 38, GroupId = 18, Group = groupMineral, Name = "Nocxium" };
+        Megacyte = new ItemType { Id = 40, GroupId = 18, Group = groupMineral, Name = "Megacyte" };
 
         // Asteroids
-        Plagioclase = new ItemType { Id = 18, GroupId = groupPlagioclase.Id, Group = groupPlagioclase, Name = "Plagioclase", Mass = 0, Volume = 0.01f };
-        AzurePlagioclase = new ItemType { Id = 17455, GroupId = groupPlagioclase.Id, Group = groupPlagioclase, Name = "Azure Plagioclase", Mass = 0, Volume = 0.35f };
+        Plagioclase = new ItemType { Id = 18, GroupId = groupPlagioclase.Id, Group = groupPlagioclase, Name = "Plagioclase" };
+        AzurePlagioclase = new ItemType { Id = 17455, GroupId = groupPlagioclase.Id, Group = groupPlagioclase, Name = "Azure Plagioclase"};
         
         // Materials from items
         PlagioclaseMaterials = new Dictionary<int, ItemTypeMaterial>

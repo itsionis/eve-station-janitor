@@ -25,6 +25,12 @@ public class CharacterConfiguration : IEntityTypeConfiguration<Character>
         builder.Property(nameof(Character.Id))
             .ValueGeneratedOnAdd();
         
+        builder.Property(nameof(Character.CharacterOwnerHash))
+            .HasMaxLength(28);
+
+        builder.Property(nameof(Character.Name))
+            .HasMaxLength(128);
+
         builder.HasIndex(c => c.EveCharacterId)
             .IsUnique();
     }

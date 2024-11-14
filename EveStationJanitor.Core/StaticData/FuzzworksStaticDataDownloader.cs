@@ -6,6 +6,7 @@ using EveStationJanitor.EveApi;
 using ICSharpCode.SharpZipLib.BZip2;
 using System.Globalization;
 using System.Net.Http.Headers;
+using CsvHelper.TypeConversion;
 using Microsoft.EntityFrameworkCore;
 
 namespace EveStationJanitor.Core.StaticData;
@@ -161,8 +162,6 @@ public sealed class ItemTypeTypeCsvMap : ClassMap<ItemType>
         Map(m => m.Id).Name("typeID");
         Map(m => m.GroupId).Name("groupID");
         Map(m => m.Name).Name("typeName");
-        Map(m => m.Volume).Name("volume");
-        Map(m => m.Mass).Name("mass");
         Map(m => m.PortionSize).Name("portionSize");
     }
 }
@@ -194,7 +193,7 @@ public sealed class StationCsvMap : ClassMap<Station>
         Map(s => s.SolarSystemId).Name("solarSystemID");
         Map(s => s.OwnerCorporationId).Name("corporationID");
         Map(s => s.Name).Name("stationName");
-        Map(s => s.ReprocessingEfficiency).Name("reprocessingEfficiency");
-        Map(s => s.ReprocessingTax).Name("reprocessingStationsTake");
+        Map(s => s.ReprocessingEfficiency).Name("reprocessingEfficiency").TypeConverterOption.NumberStyles(NumberStyles.Number | NumberStyles.AllowExponent);
+        Map(s => s.ReprocessingTax).Name("reprocessingStationsTake").TypeConverterOption.NumberStyles(NumberStyles.Number | NumberStyles.AllowExponent);
     }
 }

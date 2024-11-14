@@ -2,4 +2,4 @@
 
 namespace EveStationJanitor.Core;
 
-public record AggregatedMarketOrder(ItemType ItemType, double Price, long VolumeRemaining);
+public record AggregatedMarketOrder(ItemType ItemType, Isk Price, SalesVolume VolumeRemaining);

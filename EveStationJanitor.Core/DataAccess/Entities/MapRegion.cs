@@ -26,6 +26,10 @@ public class MapRegionConfiguration : IEntityTypeConfiguration<MapRegion>
         
         builder.Property(nameof(MapRegion.Id))
             .ValueGeneratedNever();
+
+        // Longest region name as of 2024/11/24 is 20 characters "The Kalevala Expanse"
+        builder.Property(nameof(MapRegion.Name))
+            .HasMaxLength(32);
         
         builder.HasMany(region => region.Systems)
             .WithOne(system => system.Region)

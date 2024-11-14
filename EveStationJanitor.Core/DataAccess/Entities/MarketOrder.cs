@@ -24,9 +24,9 @@ public class MarketOrder
 
     public required long LocationId { get; init; }
 
-    public required int MinVolume { get; init; }
+    public required SalesVolume MinVolume { get; init; }
 
-    public required double Price { get; init; }
+    public required Isk Price { get; init; }
 
     public required OrderRange Range { get; init; }
 
@@ -38,9 +38,9 @@ public class MarketOrder
 
     public ItemType ItemType { get; init; } = null!;
 
-    public required long VolumeRemaining { get; init; }
+    public required SalesVolume VolumeRemaining { get; init; }
 
-    public required long VolumeTotal { get; init; }
+    public required SalesVolume VolumeTotal { get; init; }
 
     public static OrderRange ParseOrderRange(string range)
     {

@@ -9,7 +9,7 @@ public static class ReprocessingFormula
     /// <remarks>
     /// Calculation derived from <see href="https://wiki.eveuniversity.org/Reprocessing#Scrapmetal_reprocessing"/>
     /// </remarks>
-    public static decimal ScrapMetalYield(decimal stationBaseYield, int scrapMetalProcessingSkill)
+    public static decimal ScrapMetalYield(decimal stationBaseYield, SkillLevel scrapMetalProcessingSkill)
     {
         scrapMetalProcessingSkill = Math.Clamp(scrapMetalProcessingSkill, 0, 5);
         return stationBaseYield * (1 + (scrapMetalProcessingSkill * 0.02m));
@@ -23,9 +23,9 @@ public static class ReprocessingFormula
     /// </remarks>
     public static decimal StationOreYield(
         decimal stationBaseYield,
-        int reprocessingSkill,
-        int reprocessingEfficiencySkill,
-        int oreReprocessingSkill,
+        SkillLevel reprocessingSkill,
+        SkillLevel reprocessingEfficiencySkill,
+        SkillLevel oreReprocessingSkill,
         decimal implantReprocessingBonus)
     {
         return stationBaseYield * CharacterOreYield(reprocessingSkill, reprocessingEfficiencySkill, oreReprocessingSkill, implantReprocessingBonus);
@@ -43,9 +43,9 @@ public static class ReprocessingFormula
         StructureReprocessingRigLevel structureRigLevel,
         SpaceSecurityType spaceSecurityType,
         StructureType structureType,
-        int reprocessingSkill,
-        int reprocessingEfficiencySkill,
-        int oreReprocessingSkill,
+        SkillLevel reprocessingSkill,
+        SkillLevel reprocessingEfficiencySkill,
+        SkillLevel oreReprocessingSkill,
         decimal implantReprocessingBonus)
     {
         // TODO - Some rigs provide bonuses to specific ore types. E.g. "Standup M-Set Moon Ore Grading Processor I" will not provide bonuses to reprocessing asteroid ores. 
@@ -88,9 +88,9 @@ public static class ReprocessingFormula
     }
 
     private static decimal CharacterOreYield(
-        int reprocessingSkill,
-        int reprocessingEfficiencySkill,
-        int oreTypeReprocessingSkill,
+        SkillLevel reprocessingSkill,
+        SkillLevel reprocessingEfficiencySkill,
+        SkillLevel oreTypeReprocessingSkill,
         decimal implantReprocessingBonus)
     {
         reprocessingSkill = Math.Clamp(reprocessingSkill, 0, 5);

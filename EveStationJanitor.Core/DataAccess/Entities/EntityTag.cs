@@ -17,6 +17,9 @@ public class EntityTagConfiguration : IEntityTypeConfiguration<EntityTag>
         builder.ToTable("EntityTags");
         
         builder.HasKey(nameof(EntityTag.Key));
+        
+        builder.Property(nameof(EntityTag.Key)).HasMaxLength(1024);
+        builder.Property(nameof(EntityTag.Tag)).HasMaxLength(1024);
 
         builder.Property(nameof(EntityTag.Key))
             .ValueGeneratedNever();

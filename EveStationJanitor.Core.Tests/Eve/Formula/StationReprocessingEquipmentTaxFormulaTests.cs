@@ -11,7 +11,7 @@ public class StationReprocessingEquipmentTaxFormulaTests
     [InlineData(6.67, 0)]
     public void EquipmentTax(double standings, decimal expected)
     {
-        const double fixedBaseReprocessingTax = 0.5;
+        const decimal fixedBaseReprocessingTax = 0.5m;
         var tax = TaxFormula.StationReprocessingEquipmentTax(fixedBaseReprocessingTax, standings);
         Assert.Equal(expected, tax);
     }
@@ -21,7 +21,7 @@ public class StationReprocessingEquipmentTaxFormulaTests
     [InlineData(6.7, 0)]
     public void EquipmentTaxIgnoresOutOfRangeStandings(double standings, decimal expected)
     {
-        const double fixedBaseReprocessingTax = 0.5;
+        const decimal fixedBaseReprocessingTax = 0.5m;
         var tax = TaxFormula.StationReprocessingEquipmentTax(fixedBaseReprocessingTax, standings);
         Assert.Equal(expected, tax);
     }

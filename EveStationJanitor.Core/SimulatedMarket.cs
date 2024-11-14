@@ -2,7 +2,7 @@
 
 public class SimulatedMarket
 {
-    private readonly Dictionary<int, PriorityQueue<BuyOrder, decimal>> _buyOrders = new();
+    private readonly Dictionary<int, PriorityQueue<BuyOrder, Isk>> _buyOrders = new();
 
     public SimulatedMarket()
     {
@@ -16,17 +16,17 @@ public class SimulatedMarket
         }
     }
 
-    public void AddOrder(int itemTypeId, double price, long volumeRemaining)
+    public void AddOrder(int itemTypeId, Isk price, SalesVolume volumeRemaining)
     {
         if (!_buyOrders.TryGetValue(itemTypeId, out var itemBuyOrders))
         {
-            itemBuyOrders = new PriorityQueue<BuyOrder, decimal>();
+            itemBuyOrders = new PriorityQueue<BuyOrder, Isk>();
             _buyOrders[itemTypeId] = itemBuyOrders;
         }
 
         var buyOrder = new BuyOrder 
         { 
-            Price = (decimal)price,
+            Price = price,
             VolumeRemaining = volumeRemaining
         };
             
@@ -35,7 +35,7 @@ public class SimulatedMarket
         itemBuyOrders.Enqueue(buyOrder, -buyOrder.Price);
     }
 
-    public decimal PreviewSell(int typeId, long quantity)
+    public decimal PreviewSell(int typeId, SalesVolume quantity)
     {
         if (!_buyOrders.TryGetValue(typeId, out var orderQueue) || orderQueue.Count == 0)
         {
@@ -74,7 +74,7 @@ public class SimulatedMarket
         }
     }
 
-    public decimal ExecuteSell(int typeId, long quantity)
+    public decimal ExecuteSell(int typeId, SalesVolume quantity)
     {
         if (!_buyOrders.TryGetValue(typeId, out var orderQueue))
         {
@@ -111,8 +111,8 @@ public class SimulatedMarket
     
     public readonly record struct BuyOrder
     {
-        public required decimal Price { get; init; }
-        public required long VolumeRemaining { get; init; }
-        public BuyOrder WithVolume(long newVolume) => this with { VolumeRemaining = newVolume };
+        public required Isk Price { get; init; }
+        public required SalesVolume VolumeRemaining { get; init; }
+        public BuyOrder WithVolume(SalesVolume newVolume) => this with { VolumeRemaining = newVolume };
     }
 }
