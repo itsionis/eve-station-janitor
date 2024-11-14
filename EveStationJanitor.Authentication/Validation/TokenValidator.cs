@@ -60,8 +60,7 @@ public class TokenValidator : ITokenValidator
         };
 
         handler.ValidateToken(ssoTokens.AccessToken, validationParameters, out var validatedToken);
-        var jwtValidatedToken = validatedToken as JwtSecurityToken;
-        if (jwtValidatedToken is null)
+        if (validatedToken is not JwtSecurityToken jwtValidatedToken)
         {
             return null;
         }
