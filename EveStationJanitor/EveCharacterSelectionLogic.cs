@@ -126,7 +126,7 @@ internal class EveCharacterSelectionLogic(AppDbContext context, IAuthenticationD
 
         public string Value => value;
 
-        public static explicit operator ValueChoice(string val) => new ValueChoice(val);
+        public static explicit operator ValueChoice(string val) => new(val);
     }
 
     private abstract class Choice
