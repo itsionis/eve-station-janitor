@@ -8,7 +8,7 @@ Persisted data and logs can be found in `%LOCALAPPDATA%\Eve Station Janitor`
 
 ### Requirements
 
-* [.NET 8 SDK x64](https://dotnet.microsoft.com/en-us/download)
+* [.NET 9 SDK x64](https://dotnet.microsoft.com/en-us/download)
 
 ## Usage
 
@@ -16,7 +16,7 @@ Run directly with `dotnet`
 
 ```pwsh
 dotnet build --configuration Release
-cd EveStationJanitor\bin\Release\net8.0-windows
+cd EveStationJanitor\bin\Release\net9.0-windows
 .\EveStationJanitor.exe
 ```
 
@@ -24,6 +24,6 @@ Or run the published binary
 
 ```pwsh
 .\Scripts\publish.ps1
-cd .\EveStationJanitor\bin\Release\net8.0-window\win-x64\
+cd .\EveStationJanitor\bin\Release\net9.0-window\win-x64\
 .\EveStationJanitor.exe
 ```
