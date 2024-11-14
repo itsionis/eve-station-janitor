@@ -21,7 +21,6 @@ internal sealed class AuthenticationClient : IAuthenticationClient
     
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly ITokenValidator _tokenValidator;
-    private readonly JsonSerializerOptions _jsonOptions;
     private readonly string _clientId;
     private readonly string _callbackUrl;
     private readonly TimeSpan _authenticationTimeout;
@@ -30,15 +29,13 @@ internal sealed class AuthenticationClient : IAuthenticationClient
     public AuthenticationClient(
         IHttpClientFactory httpClientFactory,
         IOptions<EveSsoConfiguration> configuration,
-        ITokenValidator tokenValidator,
-        [FromKeyedServices(JsonSourceGeneratorContext.ServiceKey)] JsonSerializerOptions jsonOptions)
+        ITokenValidator tokenValidator)
     {
         _httpClientFactory = httpClientFactory;
         _clientId = configuration.Value.ClientId;
         _callbackUrl = configuration.Value.CallbackUrl;
         _authenticationTimeout = configuration.Value.AuthenticationTimeout;
         _tokenValidator = tokenValidator;
-        _jsonOptions = jsonOptions;
         _state = Guid.NewGuid().ToString();
     }
 
@@ -178,7 +175,7 @@ internal sealed class AuthenticationClient : IAuthenticationClient
         try
         {
             var responseContent = await response.Content.ReadAsStringAsync();
-            var tokens = JsonSerializer.Deserialize<EveSsoTokens>(responseContent, _jsonOptions);
+            var tokens = JsonSerializer.Deserialize(responseContent, JsonSourceGeneratorContext.Default.EveSsoTokens);
             if (tokens is null)
             {
                 throw new AuthenticationFlowException("Did not receive a response when refreshing access token.");
@@ -212,7 +209,7 @@ internal sealed class AuthenticationClient : IAuthenticationClient
         try
         {
             var responseContent = await response.Content.ReadAsStringAsync();
-            var tokens = JsonSerializer.Deserialize<EveSsoTokens>(responseContent, _jsonOptions);
+            var tokens = JsonSerializer.Deserialize(responseContent, JsonSourceGeneratorContext.Default.EveSsoTokens);
             if (tokens is null)
             {
                 throw new AuthenticationFlowException("Did not receive a response when refreshing access token.");

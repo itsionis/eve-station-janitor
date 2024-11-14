@@ -24,6 +24,21 @@ public class AppDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
+        modelBuilder.ApplyConfiguration(new CharacterConfiguration());
+        modelBuilder.ApplyConfiguration(new CharacterAuthTokenConfiguration());
+        modelBuilder.ApplyConfiguration(new CharacterAuthTokenScopeConfiguration());
+        
+        modelBuilder.ApplyConfiguration(new EntityTagConfiguration());
+        
+        modelBuilder.ApplyConfiguration(new ItemCategoryConfiguration());
+        modelBuilder.ApplyConfiguration(new ItemGroupConfiguration());
+        modelBuilder.ApplyConfiguration(new ItemTypeConfiguration());
+        modelBuilder.ApplyConfiguration(new ItemTypeMaterialConfiguration());
+        
+        modelBuilder.ApplyConfiguration(new MapRegionConfiguration());
+        modelBuilder.ApplyConfiguration(new MapSolarSystemConfiguration());
+        modelBuilder.ApplyConfiguration(new StationConfiguration());
+        
+        modelBuilder.ApplyConfiguration(new MarketOrderConfiguration());
     }
 }

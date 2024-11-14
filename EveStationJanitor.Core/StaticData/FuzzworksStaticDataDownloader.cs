@@ -16,14 +16,19 @@ public class FuzzworksStaticDataDownloader
     private readonly IEntityTagProvider _entityTagProvider;
     private readonly IHttpClientFactory _clientFactory;
 
-    public FuzzworksStaticDataDownloader(AppDbContext context, IEntityTagProvider entityTagProvider, IHttpClientFactory clientFactory)
+    public FuzzworksStaticDataDownloader(AppDbContext context, IEntityTagProvider entityTagProvider,
+        IHttpClientFactory clientFactory)
     {
         _context = context;
         _entityTagProvider = entityTagProvider;
         _clientFactory = clientFactory;
     }
 
-    private async Task GetStaticData<TEntity, TMapper>(HttpClient client, string fileName, Func<DbSet<TEntity>, TEntity, Task<bool>> entityExists)
+    private async Task GetStaticData<TEntity, TMapper>(
+        HttpClient client,
+        string fileName,
+        Func<DbSet<TEntity>> getEntitySet,
+        Func<DbSet<TEntity>, TEntity, Task<bool>> entityExists)
         where TEntity : class
         where TMapper : ClassMap<TEntity>
     {
@@ -66,8 +71,8 @@ public class FuzzworksStaticDataDownloader
         csvReader.Context.RegisterClassMap<TMapper>();
         var records = csvReader.GetRecords<TEntity>().ToList();
 
-        var set = _context.Set<TEntity>();
-        
+        var set = getEntitySet();
+
         foreach (var record in records)
         {
             if (await entityExists(set, record))
@@ -89,25 +94,33 @@ public class FuzzworksStaticDataDownloader
 
         // Inventory
         await GetStaticData<ItemCategory, InventoryCategoryCsvMap>(client, "dump/latest/invCategories.csv.bz2",
+            () => _context.ItemCategories,
             (set, itemCategory) => set.AnyAsync(e => e.Id == itemCategory.Id));
 
         await GetStaticData<ItemGroup, InventoryGroupCsvMap>(client, "dump/latest/invGroups.csv.bz2",
+            () => _context.ItemGroups,
             (set, itemGroup) => set.AnyAsync(e => e.Id == itemGroup.Id));
 
         await GetStaticData<ItemType, ItemTypeTypeCsvMap>(client, "dump/latest/invTypes.csv.bz2",
+            () => _context.ItemTypes,
             (set, itemType) => set.AnyAsync(e => e.Id == itemType.Id));
 
-        await GetStaticData<ItemTypeMaterial, InventoryTypeMaterialCsvMap>(client, "dump/latest/invTypeMaterials.csv.bz2", 
+        await GetStaticData<ItemTypeMaterial, InventoryTypeMaterialCsvMap>(client,
+            "dump/latest/invTypeMaterials.csv.bz2",
+            () => _context.ItemTypeMaterials,
             (set, itemTypeMaterial) => set.AnyAsync(e => e.ItemTypeId == itemTypeMaterial.ItemTypeId && e.MaterialItemTypeId == itemTypeMaterial.MaterialItemTypeId));
 
         // Map
         await GetStaticData<MapRegion, MapRegionsCsvMap>(client, "dump/latest/mapRegions.csv.bz2",
+            () => _context.MapRegions,
             (set, region) => set.AnyAsync(e => e.Id == region.Id));
 
         await GetStaticData<MapSolarSystem, MapSolarSystemsCsvMap>(client, "dump/latest/mapSolarSystems.csv.bz2",
+            () => _context.MapSolarSystems,
             (set, system) => set.AnyAsync(e => e.Id == system.Id));
 
         await GetStaticData<Station, StationCsvMap>(client, "dump/latest/staStations.csv.bz2",
+            () => _context.Stations,
             (set, station) => set.AnyAsync(e => e.Id == station.Id));
     }
 }

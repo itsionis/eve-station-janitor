@@ -1,9 +1,8 @@
 ﻿using EveStationJanitor.Authentication.Validation;
 using NodaTime;
-using NodaTime.Serialization.SystemTextJson;
 using System.Net.Http.Headers;
-using System.Text.Json;
 using EveStationJanitor.Authentication;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -13,9 +12,10 @@ public static class DependencyInjection
     {
         services.AddOptions<EveSsoConfiguration>()
             .BindConfiguration(EveSsoConfiguration.ConfigurationSectionName)
-            .ValidateDataAnnotations()
             .ValidateOnStart();
 
+        services.AddSingleton<IValidateOptions<EveSsoConfiguration>, ValidateEveSsoConfiguration>();
+        
         services.AddHttpClient("authentication", client =>
         {
             var productInfo = new ProductInfoHeaderValue("EveStationJanitor", "1.0");
@@ -26,14 +26,6 @@ public static class DependencyInjection
 
             client.DefaultRequestHeaders.Host = "login.eveonline.com";
         });
-
-        var jsonOptions = new JsonSerializerOptions
-        {
-            TypeInfoResolver = JsonSourceGeneratorContext.Default
-        };
-        
-        jsonOptions.ConfigureForNodaTime(DateTimeZoneProviders.Tzdb);
-        services.AddKeyedSingleton(JsonSourceGeneratorContext.ServiceKey, jsonOptions);
 
         services.AddSingleton<IClock>(SystemClock.Instance);
         services.AddSingleton<IAuthenticationClient, AuthenticationClient>();

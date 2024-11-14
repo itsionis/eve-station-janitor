@@ -16,7 +16,7 @@ public class ItemTypeMaterial
     public required ItemType MaterialType { get; init; }
 }
 
-public class InventoryTypeMaterialConfiguration : IEntityTypeConfiguration<ItemTypeMaterial>
+public class ItemTypeMaterialConfiguration : IEntityTypeConfiguration<ItemTypeMaterial>
 {
     public void Configure(EntityTypeBuilder<ItemTypeMaterial> builder)
     {

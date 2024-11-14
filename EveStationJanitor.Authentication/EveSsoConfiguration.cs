@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.Extensions.Options;
 
 namespace EveStationJanitor.Authentication;
 
@@ -14,3 +15,6 @@ public sealed class EveSsoConfiguration
     
     public TimeSpan AuthenticationTimeout { get; set; } = TimeSpan.FromMinutes(2);
 }
+
+[OptionsValidator]
+public partial class ValidateEveSsoConfiguration : IValidateOptions<EveSsoConfiguration>;

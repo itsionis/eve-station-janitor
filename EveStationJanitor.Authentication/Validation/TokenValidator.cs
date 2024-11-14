@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using NodaTime.Extensions;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http.Json;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace EveStationJanitor.Authentication.Validation;
@@ -85,8 +86,10 @@ public class TokenValidator : ITokenValidator
 
         // Get more details on the character
         var client = _httpClientFactory.CreateClient();
-        var affiliationResponse = await client.PostAsJsonAsync<List<int>>("https://esi.evetech.net/latest/characters/affiliation/?datasource=tranquility", [characterId]);
-        var affiliations = await affiliationResponse.Content.ReadFromJsonAsync<List<CharacterAffiliations>>();
+        var affiliationResponse = await client.PostAsJsonAsync("https://esi.evetech.net/latest/characters/affiliation/?datasource=tranquility", [characterId], JsonSourceGeneratorContext.Default.ListInt32);
+        var jsonContent = await affiliationResponse.Content.ReadAsStringAsync();
+        
+        var affiliations = JsonSerializer.Deserialize(jsonContent, JsonSourceGeneratorContext.Default.ListCharacterAffiliations);
         if (affiliations is null || affiliations.Count == 0)
         {
             throw new ValidateTokenException("Could not acquire character affiliations during token validation");
@@ -131,8 +134,8 @@ public class TokenValidator : ITokenValidator
         var keySet = new JsonWebKeySet(keySetJson);
         return keySet.GetSigningKeys();
     }
-    
-    private sealed class CharacterAffiliations
+
+    public sealed class CharacterAffiliations
     {
         [JsonPropertyName("alliance_id")]
         public int? AllianceId { get; set; }

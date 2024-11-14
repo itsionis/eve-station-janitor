@@ -1,6 +1,5 @@
 ﻿using EveStationJanitor.EveApi.Esi;
 using System.Net.Http.Headers;
-using System.Text.Json;
 using EveStationJanitor.EveApi;
 
 namespace Microsoft.Extensions.DependencyInjection;
@@ -18,12 +17,6 @@ public static class DependencyInjection
             client.DefaultRequestHeaders.UserAgent.Add(commentValue);
         });
 
-        var jsonOptions = new JsonSerializerOptions
-        {
-            TypeInfoResolver = JsonSourceGeneratorContext.Default
-        };
-
-        services.AddKeyedSingleton(JsonSourceGeneratorContext.ServiceKey,jsonOptions);
         services.AddScoped<IPublicEveApi, PublicEveApi>();
         services.AddScoped<IAuthenticatedEveApiProvider, AuthenticatedEveApiProvider>();
         services.AddScoped<EveEsiClient>();

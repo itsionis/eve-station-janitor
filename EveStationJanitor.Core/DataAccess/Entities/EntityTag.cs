@@ -10,7 +10,7 @@ public class EntityTag
     public required string Tag { get; set; }
 }
 
-public class StaticDataETagConfiguration : IEntityTypeConfiguration<EntityTag>
+public class EntityTagConfiguration : IEntityTypeConfiguration<EntityTag>
 {
     public void Configure(EntityTypeBuilder<EntityTag> builder)
     {

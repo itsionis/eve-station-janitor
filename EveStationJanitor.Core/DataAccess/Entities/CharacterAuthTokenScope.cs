@@ -11,7 +11,7 @@ public class CharacterAuthTokenScope
     public CharacterAuthToken CharacterAuthToken { get; init; } = null!;
 }
 
-public class AuthTokenScopeConfiguration : IEntityTypeConfiguration<CharacterAuthTokenScope>
+public class CharacterAuthTokenScopeConfiguration : IEntityTypeConfiguration<CharacterAuthTokenScope>
 {
     public void Configure(EntityTypeBuilder<CharacterAuthTokenScope> builder)
     {

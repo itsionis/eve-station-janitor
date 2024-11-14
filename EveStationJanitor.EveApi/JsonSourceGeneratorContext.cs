@@ -14,7 +14,5 @@ namespace EveStationJanitor.EveApi;
 [JsonSerializable(typeof(List<ApiMarketOrder>))]
 [JsonSerializable(typeof(List<int>))]
 [JsonSerializable(typeof(ApiStandingType))]
-internal partial class JsonSourceGeneratorContext : JsonSerializerContext
-{
-    public const string ServiceKey = "api-json-serializer";
-}
+[JsonSourceGenerationOptions(PropertyNameCaseInsensitive = true)]
+internal partial class JsonSourceGeneratorContext : JsonSerializerContext;

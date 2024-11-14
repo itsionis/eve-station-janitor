@@ -1,9 +1,8 @@
-using System.Net.Http.Json;
 using System.Net;
 using OneOf;
 using OneOf.Types;
 using System.Text.Json;
-using Microsoft.Extensions.DependencyInjection;
+using System.Text.Json.Serialization.Metadata;
 
 namespace EveStationJanitor.EveApi.Esi;
 
@@ -20,16 +19,13 @@ internal sealed class EveEsiClient
 
     private readonly HttpClient _client;
     private readonly IEntityTagProvider _entityTagProvider;
-    private readonly JsonSerializerOptions _jsonOptions;
 
     public EveEsiClient(
         IHttpClientFactory clientFactory,
-        IEntityTagProvider entityTagProvider,
-        [FromKeyedServices(JsonSourceGeneratorContext.ServiceKey)] JsonSerializerOptions jsonOptions)
+        IEntityTagProvider entityTagProvider)
     {
         _client = clientFactory.CreateClient("eve-esi");
         _entityTagProvider = entityTagProvider;
-        _jsonOptions = jsonOptions;
     }
 
     public async Task<GetResult<TResponse>> Get<TResponse>(EveEsiRequest<TResponse> esiRequest) where TResponse : class
@@ -177,16 +173,16 @@ internal sealed class EveEsiClient
         return false;
     }
 
-    private async Task<T?> DeserializeResponseContent<T>(HttpResponseMessage response) where T : class
+    private static async Task<T?> DeserializeResponseContent<T>(HttpResponseMessage response) where T : class
     {
-        try
+        var typeInfo = (JsonTypeInfo<T>?)JsonSourceGeneratorContext.Default.GetTypeInfo(typeof(T));
+        if (typeInfo == null)
         {
-            return await response.Content.ReadFromJsonAsync<T>(_jsonOptions);
+            throw new InvalidOperationException($"Could not find JSON converter for type {typeof(T)}");
         }
-        catch
-        {
-            return null;
-        }
+
+        var content = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize(content, typeInfo);
     }
 
     private static bool IsErrorLimitReached(HttpResponseMessage response)
