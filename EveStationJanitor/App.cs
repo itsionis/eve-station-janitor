@@ -21,11 +21,11 @@ internal class App(AppDbContext context, Janitor janitor, FuzzworksStaticDataDow
         if (serverStatus.IsOnline)
         {
             Debug.Assert(serverStatus.PlayerCount is not null);
-            AnsiConsole.MarkupLine($"Tranquility is [bold green]online[/]! ({serverStatus.PlayerCount} players)");  
+            AnsiConsole.MarkupLine($"Tranquility is [bold green]online[/] ({serverStatus.PlayerCount} players)");  
         }
         else
         {
-            AnsiConsole.MarkupLine("Tranquility is [bold red]offline![/]");
+            AnsiConsole.MarkupLine("[bold red]Tranquility is offline[/]");
             return;
         }
         
