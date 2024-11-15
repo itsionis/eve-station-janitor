@@ -11,7 +11,7 @@ namespace EveStationJanitor.EveApi.Esi;
 /// </summary>
 internal sealed class EveEsiClient
 {
-    private const int WorkerCount = 8;
+    private static readonly int WorkerCount = Environment.ProcessorCount;
     private const int ApiErrorCode = 420;
     private const string ErrorLimitRemainHeader = "X-ESI-Error-Limit-Remain";
     private const string ErrorLimitResetHeader = "X-ESI-Error-Limit-Reset";
