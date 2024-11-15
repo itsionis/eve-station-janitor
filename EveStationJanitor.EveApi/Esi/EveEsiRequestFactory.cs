@@ -4,6 +4,8 @@ using EveStationJanitor.EveApi.Character.Objects;
 using EveStationJanitor.EveApi.Clone;
 using EveStationJanitor.EveApi.Market;
 using EveStationJanitor.EveApi.Market.Objects;
+using EveStationJanitor.EveApi.Status;
+using EveStationJanitor.EveApi.Status.Objects;
 using EveStationJanitor.EveApi.Universe;
 using EveStationJanitor.EveApi.Universe.Objects;
 
@@ -51,5 +53,11 @@ internal class EveEsiRequestFactory(IEntityTagProvider entityTagProvider)
     {
         var spec = new ItemCategoryEndpointSpec(id);
         return new EveEsiRequest<ApiItemCategory>(spec, entityTagProvider);
+    }
+
+    public EveEsiRequest<ApiEveServerStatus> ServerStatusRequest()
+    {
+        var spec = new ServerStatusEndpointSpec();
+        return new EveEsiRequest<ApiEveServerStatus>(spec, entityTagProvider);
     }
 }

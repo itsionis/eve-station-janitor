@@ -1,5 +1,6 @@
 ﻿using EveStationJanitor.EveApi.Esi;
 using EveStationJanitor.EveApi.Market;
+using EveStationJanitor.EveApi.Status;
 using EveStationJanitor.EveApi.Universe;
 
 namespace EveStationJanitor.EveApi;
@@ -9,4 +10,6 @@ internal class PublicEveApi(EveEsiClient client, EveEsiRequestFactory requestFac
     public IMarketApi Markets => new MarketApi(client, requestFactory);
 
     public IUniverseApi Universe => new UniverseApi(client, requestFactory);
+
+    public IStatusApi Status => new StatusApi(client, requestFactory);
 }
