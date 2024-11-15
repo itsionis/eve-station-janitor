@@ -21,6 +21,7 @@
   </ItemGroup>
   <!-- EF -->
   <ItemGroup>
+    <PackageVersion Include="EFCore.BulkExtensions.Sqlite" Version="8.1.1" />
     <PackageVersion Include="EFCore.NamingConventions" Version="8.0.3" />
     <PackageVersion Include="EntityFrameworkCore.Sqlite.NodaTime" Version="8.0.1" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.11" />

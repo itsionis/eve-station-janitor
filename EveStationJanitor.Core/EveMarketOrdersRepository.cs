@@ -1,4 +1,5 @@
-﻿using EveStationJanitor.Core.DataAccess;
+﻿using EFCore.BulkExtensions;
+using EveStationJanitor.Core.DataAccess;
 using EveStationJanitor.Core.DataAccess.Entities;
 using NodaTime.Text;
 using NodaTime;
@@ -43,7 +44,7 @@ internal class EveMarketOrdersRepository(AppDbContext context, IPublicEveApi eve
             .Where(order => !order.IsBuyOrder) // Sell orders
             .Where(order => order.LocationId == station.Id) // In our station
             .Where(order => order.ItemType.Materials.Any()) // Can be reprocessed
-            .Select(order => new 
+            .Select(order => new
             {
                 order.ItemType,
                 order.Price,
@@ -70,7 +71,7 @@ internal class EveMarketOrdersRepository(AppDbContext context, IPublicEveApi eve
             .Include(order => order.ItemType)
             .Where(order => order.IsBuyOrder) // Buy orders
             .Where(order => order.LocationId == station.Id) // In our station
-            .Select(order => new 
+            .Select(order => new
             {
                 order.ItemType,
                 order.Price,
@@ -84,7 +85,7 @@ internal class EveMarketOrdersRepository(AppDbContext context, IPublicEveApi eve
                 group.First().ItemType,
                 group.Key.Price,
                 group.Sum(o => o.VolumeRemaining)))
-            .OrderBy(order=>order.ItemType.Id)
+            .OrderBy(order => order.ItemType.Id)
             .ThenByDescending(order => order.Price)
             .ToList();
     }
@@ -109,22 +110,18 @@ internal class EveMarketOrdersRepository(AppDbContext context, IPublicEveApi eve
             }).ToList();
 
         // Sometimes the SDE is behind live data. Load any missing item, groups and categories to prevent foreign key violations
-        await EnsureOrderItemsConsistency(orders);
-        
+        await EnsureItemModelConsistency(orders);
+
         // Replace all existing
         var ordersToRemove = context.MarketOrders.Where(order => order.LocationId == station.Id);
-        await ordersToRemove.ExecuteDeleteAsync();
+        await context.BulkDeleteAsync(ordersToRemove);
+        await context.SaveChangesAsync();
 
-        const int marketOrderSaveBatchSize = 50_000;
-        
-        foreach (var batch in orders.Chunk(marketOrderSaveBatchSize))
-        {
-            await context.MarketOrders.AddRangeAsync(batch);
-            await context.SaveChangesAsync();
-        }
+        await context.BulkInsertAsync(orders);
+        await context.SaveChangesAsync();
     }
 
-    private async Task<bool> EnsureOrderItemsConsistency(IReadOnlyList<MarketOrder> orders)
+    private async Task<bool> EnsureItemModelConsistency(IReadOnlyList<MarketOrder> orders)
     {
         var itemIdsInOrders = orders.Select(order => order.TypeId).ToHashSet();
         var itemIdsInDatabase = context.ItemTypes.Select(item => item.Id).ToHashSet();

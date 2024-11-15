@@ -6,6 +6,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="CsvHelper" />
+		<PackageReference Include="EFCore.BulkExtensions.Sqlite" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
 		<PackageReference Include="EntityFrameworkCore.Sqlite.NodaTime" />
 		<PackageReference Include="OneOf" />
