@@ -13,3 +13,4 @@ global using Isk = decimal;
 global using SalesVolume = long;
 global using Mass = decimal;
 global using Volume = decimal;
+global using StandingsModifier = double;
