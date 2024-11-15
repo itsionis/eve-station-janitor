@@ -13,6 +13,7 @@ internal sealed class EveEsiClient
 {
     private static readonly int WorkerCount = Environment.ProcessorCount;
     private const int ApiErrorCode = 420;
+    
     private const string ErrorLimitRemainHeader = "X-ESI-Error-Limit-Remain";
     private const string ErrorLimitResetHeader = "X-ESI-Error-Limit-Reset";
     private const string PagesHeader = "X-Pages";
@@ -20,9 +21,7 @@ internal sealed class EveEsiClient
     private readonly HttpClient _client;
     private readonly IEntityTagProvider _entityTagProvider;
 
-    public EveEsiClient(
-        IHttpClientFactory clientFactory,
-        IEntityTagProvider entityTagProvider)
+    public EveEsiClient(IHttpClientFactory clientFactory, IEntityTagProvider entityTagProvider)
     {
         _client = clientFactory.CreateClient("eve-esi");
         _entityTagProvider = entityTagProvider;
@@ -120,30 +119,37 @@ internal sealed class EveEsiClient
 
     private async Task<GetCollectionPageResult<TResponse>> GetCollectionPage<TResponse>(EveEsiPagedRequest<TResponse> request, int page, bool includeEntityTag)
     {
-        var esiRequestForPage = request.ForPage(page);
-        var httpRequestMessage = await esiRequestForPage.CreateHttpRequestMessage();
-        var response = await _client.SendAsync(httpRequestMessage);
-
-        if (IsErrorLimitReached(response)) { return new Error<string>("Error limit reached on API."); }
-        if (response.StatusCode == HttpStatusCode.NotModified)
+        while (true)
         {
-            return new NotModified();
+            var esiRequestForPage = request.ForPage(page);
+            var httpRequestMessage = await esiRequestForPage.CreateHttpRequestMessage();
+            var response = await _client.SendAsync(httpRequestMessage);
+
+            if (IsErrorLimitReached(response))
+            {
+                return new Error<string>("Error limit reached on API.");
+            }
+
+            if (response.StatusCode == HttpStatusCode.NotModified)
+            {
+                return new NotModified();
+            }
+
+            if (!response.IsSuccessStatusCode && await ShouldRetry(response))
+            {
+                continue;
+            }
+
+            var content = await DeserializeResponseContent<List<TResponse>>(response);
+            if (content is null)
+            {
+                return new Error<string>("Could not deserialize response.");
+            }
+
+            UpdateEntityTag(response, esiRequestForPage.ETagKey);
+
+            return (content, response);
         }
-
-        if (!response.IsSuccessStatusCode && await ShouldRetry(response))
-        {
-            return await GetCollectionPage(request, page, includeEntityTag); // Retry
-        }
-
-        var content = await DeserializeResponseContent<List<TResponse>>(response);
-        if (content is null)
-        {
-            return new Error<string>("Could not deserialize response.");
-        }
-
-        UpdateEntityTag(response, esiRequestForPage.ETagKey);
-
-        return (content, response);
     }
 
     private void UpdateEntityTag(HttpResponseMessage response, string? entityTagKey)
